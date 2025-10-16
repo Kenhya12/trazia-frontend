@@ -1,0 +1,128 @@
+{
+    "auth": {
+        "login": {
+            "title": "Sign in",
+            "email": "Email",
+            "password": "Password",
+            "submit": "Sign in",
+            "forgotPassword": "Forgot password?",
+            "noAccount": "Don't have an account?",
+            "registerLink": "Register here",
+            "errors": {
+                "emailRequired": "Email is required",
+                "invalidCredentials": "Invalid email or password",
+                "serverError": "Server error"
+            }
+        },
+        "register": {
+            "title": "Create account",
+            "username": "Username",
+            "email": "Email",
+            "password": "Password",
+            "confirmPassword": "Confirm password",
+            "submit": "Register",
+            "loading": "Loading...",
+            "hasAccount": "Already have an account?",
+            "loginLink": "Sign in here",
+            "errors": {
+                "usernameRequired": "Username is required",
+                "emailExists": "Email already registered",
+                "invalidData": "Invalid data",
+                "serverError": "Server error"
+            }
+        },
+        "errors": {
+            "emailRequired": "Email is required",
+            "emailInvalid": "Invalid email format",
+            "passwordRequired": "Password is required",
+            "passwordMin": "Password must be at least 8 characters",
+            "usernameRequired": "Username is required",
+            "usernameSize": "Username must be between 3 and 50 characters",
+            "passwordsMismatch": "Passwords do not match",
+            "invalidCredentials": "Invalid email or password",
+            "userExists": "User already exists",
+            "unexpectedError": "Unexpected error. Please try again"
+        },
+        "success": {
+            "registered": "User registered successfully",
+            "loggedIn": "Logged in successfully"
+        }
+    },
+    "validation": {
+        "username": {
+            "required": "Username is required",
+            "minLength": "Username must be at least 3 characters"
+        },
+        "email": {
+            "required": "Email is required",
+            "invalid": "Invalid email format"
+        },
+        "password": {
+            "required": "Password is required",
+            "minLength": "Password must be at least 8 characters",
+            "weak": "Password must contain uppercase, lowercase and numbers",
+            "strength": {
+                "label": "Strength",
+                "veryWeak": "Very Weak",
+                "weak": "Weak",
+                "medium": "Medium",
+                "strong": "Strong",
+                "veryStrong": "Very Strong"
+            },
+            "attemptsRemaining": "{{remaining}} attempts remaining",
+            "maxAttemptsReached": "Maximum attempts reached. Please try again later"
+        },
+        "confirmPassword": {
+            "required": "Please confirm your password",
+            "mismatch": "Passwords do not match"
+        }
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "subtitle": "Welcome to your Dashboard",
+        "description": "Manage your products and nutritional information",
+        "welcome": "Welcome",
+        "logout": "Logout",
+        "cards": {
+            "products": "Products",
+            "productsDesc": "Browse and manage your product database",
+            "nutrition": "Nutrition",
+            "nutritionDesc": "Track nutritional information and recommendations",
+            "history": "History",
+            "historyDesc": "View your search and scan history"
+        }
+    },
+    "products": {
+        "search": {
+            "title": "Search products",
+            "placeholder": "Search by name or barcode",
+            "button": "Search",
+            "noResults": "No products found",
+            "loading": "Searching products..."
+        },
+        "details": {
+            "name": "Name",
+            "brand": "Brand",
+            "barcode": "Barcode",
+            "nutritionalInfo": "Nutritional information",
+            "energy": "Energy",
+            "proteins": "Proteins",
+            "carbohydrates": "Carbohydrates",
+            "fats": "Fats",
+            "notFound": "Product not found"
+        }
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "back": "Back",
+        "logout": "Logout",
+        "user": "User",
+        "search": "Search"
+    }
+}

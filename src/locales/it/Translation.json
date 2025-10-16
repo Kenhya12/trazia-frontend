@@ -1,0 +1,128 @@
+{
+    "auth": {
+        "login": {
+            "title": "Accedi",
+            "email": "Email",
+            "password": "Password",
+            "submit": "Accedi",
+            "forgotPassword": "Password dimenticata?",
+            "noAccount": "Non hai un account?",
+            "registerLink": "Registrati qui",
+            "errors": {
+                "emailRequired": "L'email è obbligatoria",
+                "invalidCredentials": "Email o password non validi",
+                "serverError": "Errore del server"
+            }
+        },
+        "register": {
+            "title": "Crea account",
+            "username": "Nome utente",
+            "email": "Email",
+            "password": "Password",
+            "confirmPassword": "Conferma password",
+            "submit": "Registrati",
+            "loading": "Caricamento...",
+            "hasAccount": "Hai già un account?",
+            "loginLink": "Accedi qui",
+            "errors": {
+                "usernameRequired": "Il nome utente è obbligatorio",
+                "emailExists": "Email già registrata",
+                "invalidData": "Dati non validi",
+                "serverError": "Errore del server"
+            }
+        },
+        "errors": {
+            "emailRequired": "L'email è obbligatoria",
+            "emailInvalid": "Formato email non valido",
+            "passwordRequired": "La password è obbligatoria",
+            "passwordMin": "La password deve contenere almeno 8 caratteri",
+            "usernameRequired": "Il nome utente è obbligatorio",
+            "usernameSize": "Il nome deve contenere tra 3 e 50 caratteri",
+            "passwordsMismatch": "Le password non corrispondono",
+            "invalidCredentials": "Email o password non validi",
+            "userExists": "L'utente esiste già",
+            "unexpectedError": "Errore imprevisto. Riprova"
+        },
+        "success": {
+            "registered": "Utente registrato con successo",
+            "loggedIn": "Accesso effettuato con successo"
+        }
+    },
+    "validation": {
+        "username": {
+            "required": "Il nome utente è obbligatorio",
+            "minLength": "Il nome deve contenere almeno 3 caratteri"
+        },
+        "email": {
+            "required": "L'email è obbligatoria",
+            "invalid": "Formato email non valido"
+        },
+        "password": {
+            "required": "La password è obbligatoria",
+            "minLength": "La password deve contenere almeno 8 caratteri",
+            "weak": "La password deve contenere maiuscole, minuscole e numeri",
+            "strength": {
+                "label": "Forza",
+                "veryWeak": "Molto Debole",
+                "weak": "Debole",
+                "medium": "Media",
+                "strong": "Forte",
+                "veryStrong": "Molto Forte"
+            },
+            "attemptsRemaining": "{{remaining}} tentativi rimanenti",
+            "maxAttemptsReached": "Numero massimo di tentativi raggiunto. Riprova più tardi"
+        },
+        "confirmPassword": {
+            "required": "Si prega di confermare la password",
+            "mismatch": "Le password non corrispondono"
+        }
+    },
+    "dashboard": {
+        "title": "Pannello di Controllo",
+        "subtitle": "Benvenuto nel tuo Pannello",
+        "description": "Gestisci i tuoi prodotti e informazioni nutrizionali",
+        "welcome": "Benvenuto",
+        "logout": "Disconnetti",
+        "cards": {
+            "products": "Prodotti",
+            "productsDesc": "Esplora e gestisci il tuo database prodotti",
+            "nutrition": "Nutrizione",
+            "nutritionDesc": "Monitora informazioni nutrizionali e raccomandazioni",
+            "history": "Cronologia",
+            "historyDesc": "Visualizza la cronologia delle tue ricerche e scansioni"
+        }
+    },
+    "products": {
+        "search": {
+            "title": "Cerca prodotti",
+            "placeholder": "Cerca per nome o codice a barre",
+            "button": "Cerca",
+            "noResults": "Nessun prodotto trovato",
+            "loading": "Ricerca prodotti..."
+        },
+        "details": {
+            "name": "Nome",
+            "brand": "Marca",
+            "barcode": "Codice a barre",
+            "nutritionalInfo": "Informazioni nutrizionali",
+            "energy": "Energia",
+            "proteins": "Proteine",
+            "carbohydrates": "Carboidrati",
+            "fats": "Grassi",
+            "notFound": "Prodotto non trovato"
+        }
+    },
+    "common": {
+        "loading": "Caricamento...",
+        "error": "Errore",
+        "success": "Successo",
+        "save": "Salva",
+        "cancel": "Annulla",
+        "delete": "Elimina",
+        "edit": "Modifica",
+        "back": "Indietro",
+        "logout": "Disconnetti",
+        "user": "Utente",
+        "search": "Cerca"
+    }
+}

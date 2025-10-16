@@ -1,0 +1,128 @@
+{
+    "auth": {
+        "login": {
+            "title": "Connexion",
+            "email": "Email",
+            "password": "Mot de passe",
+            "submit": "Se connecter",
+            "forgotPassword": "Mot de passe oublié?",
+            "noAccount": "Pas de compte?",
+            "registerLink": "S'inscrire ici",
+            "errors": {
+                "emailRequired": "L'email est requis",
+                "invalidCredentials": "Email ou mot de passe invalide",
+                "serverError": "Erreur serveur"
+            }
+        },
+        "register": {
+            "title": "Créer un compte",
+            "username": "Nom d'utilisateur",
+            "email": "Email",
+            "password": "Mot de passe",
+            "confirmPassword": "Confirmer le mot de passe",
+            "submit": "S'inscrire",
+            "loading": "Chargement...",
+            "hasAccount": "Vous avez déjà un compte?",
+            "loginLink": "Se connecter ici",
+            "errors": {
+                "usernameRequired": "Le nom d'utilisateur est requis",
+                "emailExists": "Email déjà enregistré",
+                "invalidData": "Données invalides",
+                "serverError": "Erreur serveur"
+            }
+        },
+        "errors": {
+            "emailRequired": "L'email est requis",
+            "emailInvalid": "Format d'email invalide",
+            "passwordRequired": "Le mot de passe est requis",
+            "passwordMin": "Le mot de passe doit contenir au moins 8 caractères",
+            "usernameRequired": "Le nom d'utilisateur est requis",
+            "usernameSize": "Le nom doit contenir entre 3 et 50 caractères",
+            "passwordsMismatch": "Les mots de passe ne correspondent pas",
+            "invalidCredentials": "Email ou mot de passe invalide",
+            "userExists": "L'utilisateur existe déjà",
+            "unexpectedError": "Erreur inattendue. Veuillez réessayer"
+        },
+        "success": {
+            "registered": "Utilisateur enregistré avec succès",
+            "loggedIn": "Connecté avec succès"
+        }
+    },
+    "validation": {
+        "username": {
+            "required": "Le nom d'utilisateur est requis",
+            "minLength": "Le nom doit contenir au moins 3 caractères"
+        },
+        "email": {
+            "required": "L'email est requis",
+            "invalid": "Format d'email invalide"
+        },
+        "password": {
+            "required": "Le mot de passe est requis",
+            "minLength": "Le mot de passe doit contenir au moins 8 caractères",
+            "weak": "Le mot de passe doit contenir majuscules, minuscules et chiffres",
+            "strength": {
+                "label": "Force",
+                "veryWeak": "Très Faible",
+                "weak": "Faible",
+                "medium": "Moyen",
+                "strong": "Fort",
+                "veryStrong": "Très Fort"
+            },
+            "attemptsRemaining": "{{remaining}} tentatives restantes",
+            "maxAttemptsReached": "Nombre maximum de tentatives atteint. Réessayez plus tard"
+        },
+        "confirmPassword": {
+            "required": "Veuillez confirmer votre mot de passe",
+            "mismatch": "Les mots de passe ne correspondent pas"
+        }
+    },
+    "dashboard": {
+        "title": "Tableau de Bord",
+        "subtitle": "Bienvenue sur votre Tableau de Bord",
+        "description": "Gérez vos produits et informations nutritionnelles",
+        "welcome": "Bienvenue",
+        "logout": "Déconnexion",
+        "cards": {
+            "products": "Produits",
+            "productsDesc": "Parcourez et gérez votre base de données produits",
+            "nutrition": "Nutrition",
+            "nutritionDesc": "Suivez les informations nutritionnelles et recommandations",
+            "history": "Historique",
+            "historyDesc": "Voir votre historique de recherches et scans"
+        }
+    },
+    "products": {
+        "search": {
+            "title": "Rechercher des produits",
+            "placeholder": "Rechercher par nom ou code-barres",
+            "button": "Rechercher",
+            "noResults": "Aucun produit trouvé",
+            "loading": "Recherche de produits..."
+        },
+        "details": {
+            "name": "Nom",
+            "brand": "Marque",
+            "barcode": "Code-barres",
+            "nutritionalInfo": "Informations nutritionnelles",
+            "energy": "Énergie",
+            "proteins": "Protéines",
+            "carbohydrates": "Glucides",
+            "fats": "Lipides",
+            "notFound": "Produit non trouvé"
+        }
+    },
+    "common": {
+        "loading": "Chargement...",
+        "error": "Erreur",
+        "success": "Succès",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "back": "Retour",
+        "logout": "Déconnexion",
+        "user": "Utilisateur",
+        "search": "Rechercher"
+    }
+}

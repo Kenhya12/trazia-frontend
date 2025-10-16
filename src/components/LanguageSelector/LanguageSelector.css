@@ -1,0 +1,9 @@
+/* src/components/LanguageSelector/LanguageSelector.css */
+.language-selector {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-size: 1em;
+    cursor: pointer;
+}
