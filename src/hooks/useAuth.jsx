@@ -1,7 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
+import React from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
-import { authService } from '../services/auth.service';
-import { storageService } from '../services/storage.service';
+import { authService } from '../services/authService';
+import { storageService } from '../services/storageService';
 
 const AuthContext = createContext(null);
 

@@ -1,8 +1,10 @@
+import React from 'react';
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth";
-import { authService } from "../../services/auth.service";
+import { authService } from "../../services/authService";
 
 function getPasswordStrength(password) {
     let score = 0;
@@ -24,14 +26,14 @@ function PasswordStrengthIndicator({ score, t }) {
     ];
     const colors = ['#FF4E42', '#FF7F50', '#FFA500', '#9ACD32', '#4CAF50'];
     return (
-        <p style={{ color: colors[score], fontWeight: 'bold', marginTop: '0.25rem' }}>
-            {t('validation.password.strength.label')}: {labels[score]}
-        </p>
+        <div className="flex items-center mt-2">
+            <span className="text-sm mr-2">⭐</span>
+            <span className="text-sm font-medium" style={{ color: colors[score] }}>
+                {labels[score]}
+            </span>
+        </div>
     );
 }
-
-const MAX_PASSWORD_ATTEMPTS = 5;
-const ATTEMPTS_STORAGE_KEY = 'register_password_attempts';
 
 export function RegisterForm() {
     const { t } = useTranslation();
@@ -44,26 +46,19 @@ export function RegisterForm() {
     const [errors, setErrors] = useState({});
     const [serverError, setServerError] = useState("");
     const [loading, setLoading] = useState(false);
-    const [passwordAttempts, setPasswordAttempts] = useState(() => {
-        const stored = localStorage.getItem(ATTEMPTS_STORAGE_KEY);
-        return stored ? parseInt(stored, 10) : 0;
-    });
 
     const navigate = useNavigate();
-    const { login: authLogin } = useAuth();  // ✅ CAMBIO AQUÍ
+    const { login: authLogin } = useAuth();
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        if (errors[name]) {
+            setErrors({ ...errors, [name]: "" });
+        }
+        setFormData({ ...formData, [name]: value });
+    };
 
     const passwordStrengthScore = getPasswordStrength(formData.password);
-    const isBlocked = passwordAttempts >= MAX_PASSWORD_ATTEMPTS;
-
-    useEffect(() => {
-        localStorage.setItem(ATTEMPTS_STORAGE_KEY, passwordAttempts.toString());
-    }, [passwordAttempts]);
-
-    useEffect(() => {
-        if (isBlocked) {
-            setServerError(t('validation.password.maxAttemptsReached'));
-        }
-    }, [isBlocked, t]);
 
     const validateForm = () => {
         const newErrors = {};
@@ -98,52 +93,23 @@ export function RegisterForm() {
         return newErrors;
     };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        if (errors[name]) {
-            setErrors({ ...errors, [name]: "" });
-        }
-        setFormData({ ...formData, [name]: value });
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setServerError("");
-
-        if (isBlocked) {
-            setServerError(t('validation.password.maxAttemptsReached'));
-            return;
-        }
 
         const validationErrors = validateForm();
 
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
-
-            if (validationErrors.password) {
-                const newAttempts = passwordAttempts + 1;
-                setPasswordAttempts(newAttempts);
-
-                if (newAttempts >= MAX_PASSWORD_ATTEMPTS) {
-                    setServerError(t('validation.password.maxAttemptsReached'));
-                } else {
-                    const remaining = MAX_PASSWORD_ATTEMPTS - newAttempts;
-                    setServerError(t('validation.password.attemptsRemaining', { remaining }));
-                }
-            }
             return;
         }
 
         setLoading(true);
 
         try {
-            const { confirmPassword: _, ...dataToSend } = formData;
-            const response = await authService.register(dataToSend);
+            const response = await authService.register(formData);
+            console.log('Registro exitoso:', response);
 
-            // Limpiar intentos al registrarse correctamente
-            localStorage.removeItem(ATTEMPTS_STORAGE_KEY);
-            
-            // ✅ CAMBIO AQUÍ - Usar el login del hook
             const loginResult = await authLogin({
                 email: formData.email,
                 password: formData.password
@@ -168,106 +134,157 @@ export function RegisterForm() {
     };
 
     return (
-        <div>
-            <h2>{t('auth.register.title')}</h2>
+        <div className="min-h-screen flex w-full">
+            {/* Imagen de fondo - CON IMAGEN TEMPORAL QUE SÍ FUNCIONA */}
+            <div className="hidden lg:block lg:flex-1">
+                <div
+                    className="h-full w-full bg-cover bg-center"
+                    style={{
+                        backgroundImage: 'url("https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80")'
+                    }}
+                />
+            </div>
 
-            <form onSubmit={handleSubmit} noValidate>
-                {serverError && (
-                    <div style={{
-                        color: 'red',
-                        marginBottom: '10px',
-                        fontWeight: 'bold',
-                        padding: '10px',
-                        backgroundColor: '#ffe6e6',
-                        borderRadius: '4px',
-                        border: '1px solid red'
-                    }}>
-                        {serverError}
+            {/* Formulario - lado derecho (40%) */}
+            <div className="flex-1 lg:flex-none lg:w-2/5 flex items-center justify-center p-8 bg-base-100">
+                <div className="w-full max-w-md">
+                    {/* Header */}
+                    <div className="text-center mb-10">
+                        <h1 className="text-3xl font-black text-base-content">Trazia</h1>
+                        <h2 className="text-xl font-bold text-base-content mt-6">
+                            {t('auth.register.title')}
+                        </h2>
                     </div>
-                )}
 
-                <div>
-                    <label htmlFor="username">{t('auth.register.username')}</label>
-                    <input
-                        id="username"
-                        name="username"
-                        type="text"
-                        value={formData.username}
-                        onChange={handleChange}
-                        disabled={isBlocked}
-                        aria-invalid={errors.username ? "true" : "false"}
-                    />
-                    {errors.username && (
-                        <span style={{ color: 'red', fontSize: '12px' }}>
-                            {errors.username}
-                        </span>
+                    {/* Mensaje de error del servidor */}
+                    {serverError && (
+                        <div className="alert alert-error mb-8">
+                            {serverError}
+                        </div>
                     )}
-                </div>
 
-                <div>
-                    <label htmlFor="email">{t('auth.register.email')}</label>
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        disabled={isBlocked}
-                        aria-invalid={errors.email ? "true" : "false"}
-                    />
-                    {errors.email && (
-                        <span style={{ color: 'red', fontSize: '12px' }}>
-                            {errors.email}
-                        </span>
-                    )}
-                </div>
+                    <form onSubmit={handleSubmit} noValidate className="space-y-6">
+                        {/* Campo Username */}
+                        <div className="form-control">
+                            <label htmlFor="username" className="label">
+                                <span className="label-text font-semibold">
+                                    {t('auth.register.username')} *
+                                </span>
+                            </label>
+                            <input
+                                id="username"
+                                name="username"
+                                type="text"
+                                value={formData.username}
+                                onChange={handleChange}
+                                className={`input input-bordered ${errors.username ? 'input-error' : ''}`}
+                                placeholder="Enter your username"
+                            />
+                            {errors.username && (
+                                <span className="text-error text-sm mt-1">
+                                    {errors.username}
+                                </span>
+                            )}
+                        </div>
 
-                <div>
-                    <label htmlFor="password">{t('auth.register.password')}</label>
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        disabled={isBlocked}
-                        aria-invalid={errors.password ? "true" : "false"}
-                        aria-describedby="password-strength"
-                    />
-                    {errors.password && (
-                        <span style={{ color: 'red', fontSize: '12px' }}>
-                            {errors.password}
-                        </span>
-                    )}
-                    {!isBlocked && <PasswordStrengthIndicator score={passwordStrengthScore} t={t} />}
-                </div>
+                        {/* Campo Email */}
+                        <div className="form-control">
+                            <label htmlFor="email" className="label">
+                                <span className="label-text font-semibold">
+                                    {t('auth.register.email')} *
+                                </span>
+                            </label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                className={`input input-bordered ${errors.email ? 'input-error' : ''}`}
+                                placeholder="Enter your email address"
+                            />
+                            {errors.email && (
+                                <span className="text-error text-sm mt-1">
+                                    {errors.email}
+                                </span>
+                            )}
+                        </div>
 
-                <div>
-                    <label htmlFor="confirmPassword">{t('auth.register.confirmPassword')}</label>
-                    <input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        disabled={isBlocked}
-                        aria-invalid={errors.confirmPassword ? "true" : "false"}
-                    />
-                    {errors.confirmPassword && (
-                        <span style={{ color: 'red', fontSize: '12px' }}>
-                            {errors.confirmPassword}
-                        </span>
-                    )}
-                </div>
+                        {/* Campo Password */}
+                        <div className="form-control">
+                            <label htmlFor="password" className="label">
+                                <span className="label-text font-semibold">
+                                    {t('auth.register.password')} *
+                                </span>
+                            </label>
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                className={`input input-bordered ${errors.password ? 'input-error' : ''}`}
+                                placeholder="······"
+                            />
+                            {errors.password && (
+                                <span className="text-error text-sm mt-1">
+                                    {errors.password}
+                                </span>
+                            )}
+                            {formData.password && (
+                                <PasswordStrengthIndicator score={passwordStrengthScore} t={t} />
+                            )}
+                        </div>
 
-                <button type="submit" disabled={loading || isBlocked}>
-                    {loading ? t('auth.register.loading') : t('auth.register.submit')}
-                </button>
+                        {/* Campo Confirmar Password */}
+                        <div className="form-control">
+                            <label htmlFor="confirmPassword" className="label">
+                                <span className="label-text font-semibold">
+                                    {t('auth.register.confirmPassword')} *
+                                </span>
+                            </label>
+                            <input
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                type="password"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                className={`input input-bordered ${errors.confirmPassword ? 'input-error' : ''}`}
+                                placeholder="······"
+                            />
+                            {errors.confirmPassword && (
+                                <span className="text-error text-sm mt-1">
+                                    {errors.confirmPassword}
+                                </span>
+                            )}
+                        </div>
 
-                <div>
-                    <p>{t('auth.register.hasAccount')} <Link to="/login">{t('auth.register.loginLink')}</Link></p>
+                        {/* Botón de Registro con más espacio */}
+                        <div className="pt-15">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="btn btn-primary w-full py-3 font-bold text-lg"
+                            >
+                                {loading ? t('auth.register.loading') : t('auth.register.title')}
+                            </button>
+                        </div>
+
+                        {/* Enlace a Login con más espacio */}
+                        <div className="text-center pt-8">
+                            <p className="text-base-content/70">
+                                Already have an account?{' '}
+                                <Link
+                                    to="/login"
+                                    className="text-primary font-bold hover:text-primary-focus text-lg"
+                                >
+                                    Sign in instead
+                                </Link>
+                            </p>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     );
 }

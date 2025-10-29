@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { StorageService } from '../services/storage.service';
 
-const API_BASE_URL = 'http://localhost:9090';
+const API_BASE_URL = 'http://localhost:9090/api'; // 👈 AGREGA /api AQUÍ
 
-// Instancia de Axios
 const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
     headers: {

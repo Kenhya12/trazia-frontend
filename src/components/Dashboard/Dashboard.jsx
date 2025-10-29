@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../services/auth.service';
+import { authService } from '../../services/authService';
 import { useAuth } from '../../hooks/useAuth';
 import './Dashboard.css'; // Si tienes estilos
 

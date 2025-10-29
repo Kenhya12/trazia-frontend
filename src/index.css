@@ -1,14 +1,30 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* index.css - Configuración optimizada */
+/* index.css - Para Tailwind v3.4.1 */
+@import "tailwindcss";
+@plugin "flyonui";
+@import "flyonui/variants.css";
+@source "./node_modules/flyonui/flyonui.js";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Estilos globales Fuente */
+body {
+  @apply bg-gray-100 text-gray-800 font-sans;
+}
+
+/* tema Global, index.css */
+
+@import "tailwindcss";
+@plugin "flyonui" {
+  themes: light --default, dark --prefersdark, slack;
+}
+@import "flyonui/variants.css";
+
+@plugin "flyonui" {
+  themes: light --default, dark --prefersdark, slack; /* 👈 Slack agregado */
+}
+@import "flyonui/variants.css";
+
+/* Fuente Lato global */
+body {
+  font-family: 'Lato', sans-serif;
 }

@@ -5,3 +5,12 @@
   text-align: center;
 }
 
+/* Tailwind base */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* FlyonUI CSS */
+@import "flyonui/dist/index.css";
+@import "flyonui/variants.css"; /* si quieres variantes de FlyonUI */
+

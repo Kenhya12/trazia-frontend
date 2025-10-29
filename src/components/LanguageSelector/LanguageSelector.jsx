@@ -1,4 +1,5 @@
 // src/components/LanguageSelector/LanguageSelector.jsx
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import './LanguageSelector.css';
 
