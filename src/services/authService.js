@@ -40,8 +40,9 @@ export const authService = {
     },
 
     isAuthenticated() {
-        return storageService.hasToken();
-    },
+    const token = storageService.getToken();
+    return !!token && token !== 'undefined' && token !== 'null';
+},
 
     getUsername() {
         return storageService.getUsername();

@@ -22,6 +22,8 @@ export const AuthProvider = ({ children }) => {
         try {
             const data = await authService.login(credentials);
             setUsername(data.username);
+            storageService.setUsername(data.username);
+            storageService.setEmail(data.email);
             return { success: true };
         } catch (error) {
             return {
@@ -38,6 +40,8 @@ export const AuthProvider = ({ children }) => {
         try {
             const data = await authService.register(userData);
             setUsername(data.username);
+            storageService.setUsername(data.username);
+            storageService.setEmail(data.email);
             return { success: true };
         } catch (error) {
             return {
@@ -50,7 +54,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        storageService.clear();
+        authService.logout();
         setUsername(null);
     };
 
@@ -81,4 +85,3 @@ export const useAuth = () => {
     }
     return context;
 };
-

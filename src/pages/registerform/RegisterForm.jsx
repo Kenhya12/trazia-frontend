@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -55,6 +54,9 @@ export function RegisterForm() {
         if (errors[name]) {
             setErrors({ ...errors, [name]: "" });
         }
+        if (serverError) {
+            setServerError("");
+        }
         setFormData({ ...formData, [name]: value });
     };
 
@@ -64,22 +66,22 @@ export function RegisterForm() {
         const newErrors = {};
 
         if (!formData.username) {
-            newErrors.username = t('validation.username.required');
+            newErrors.username = t('auth.errors.usernameRequired');
         } else if (formData.username.length < 3) {
             newErrors.username = t('validation.username.minLength');
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!formData.email) {
-            newErrors.email = t('validation.email.required');
+            newErrors.email = t('auth.errors.emailRequired');
         } else if (!emailRegex.test(formData.email)) {
-            newErrors.email = t('validation.email.invalid');
+            newErrors.email = t('auth.errors.emailInvalid');
         }
 
         if (!formData.password) {
-            newErrors.password = t('validation.password.required');
+            newErrors.password = t('auth.errors.passwordRequired');
         } else if (formData.password.length < 8) {
-            newErrors.password = t('validation.password.minLength');
+            newErrors.password = t('auth.errors.passwordMin');
         } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
             newErrors.password = t('validation.password.weak');
         }
@@ -87,7 +89,7 @@ export function RegisterForm() {
         if (!formData.confirmPassword) {
             newErrors.confirmPassword = t('validation.confirmPassword.required');
         } else if (formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = t('validation.confirmPassword.mismatch');
+            newErrors.confirmPassword = t('auth.errors.passwordsMismatch');
         }
 
         return newErrors;
@@ -98,7 +100,6 @@ export function RegisterForm() {
         setServerError("");
 
         const validationErrors = validateForm();
-
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
@@ -107,26 +108,15 @@ export function RegisterForm() {
         setLoading(true);
 
         try {
-            const response = await authService.register(formData);
-            console.log('Registro exitoso:', response);
-
-            const loginResult = await authLogin({
-                email: formData.email,
-                password: formData.password
-            });
-
-            if (loginResult.success) {
-                navigate("/dashboard");
-            } else {
-                setServerError(loginResult.error || t('auth.register.errors.serverError'));
-            }
+            await authService.register(formData);
+            navigate("/dashboard");
         } catch (err) {
             if (err.response?.status === 409) {
                 setServerError(t('auth.register.errors.emailExists'));
             } else if (err.response?.status === 400) {
                 setServerError(t('auth.register.errors.invalidData'));
             } else {
-                setServerError(t('auth.register.errors.serverError'));
+                setServerError(t('auth.errors.unexpectedError'));
             }
         } finally {
             setLoading(false);
@@ -135,7 +125,6 @@ export function RegisterForm() {
 
     return (
         <div className="min-h-screen flex w-full">
-            {/* Imagen de fondo - CON IMAGEN TEMPORAL QUE SÍ FUNCIONA */}
             <div className="hidden lg:block lg:flex-1">
                 <div
                     className="h-full w-full bg-cover bg-center"
@@ -145,10 +134,8 @@ export function RegisterForm() {
                 />
             </div>
 
-            {/* Formulario - lado derecho (40%) */}
             <div className="flex-1 lg:flex-none lg:w-2/5 flex items-center justify-center p-8 bg-base-100">
                 <div className="w-full max-w-md">
-                    {/* Header */}
                     <div className="text-center mb-10">
                         <h1 className="text-3xl font-black text-base-content">Trazia</h1>
                         <h2 className="text-xl font-bold text-base-content mt-6">
@@ -156,7 +143,6 @@ export function RegisterForm() {
                         </h2>
                     </div>
 
-                    {/* Mensaje de error del servidor */}
                     {serverError && (
                         <div className="alert alert-error mb-8">
                             {serverError}
@@ -164,7 +150,6 @@ export function RegisterForm() {
                     )}
 
                     <form onSubmit={handleSubmit} noValidate className="space-y-6">
-                        {/* Campo Username */}
                         <div className="form-control">
                             <label htmlFor="username" className="label">
                                 <span className="label-text font-semibold">
@@ -178,7 +163,7 @@ export function RegisterForm() {
                                 value={formData.username}
                                 onChange={handleChange}
                                 className={`input input-bordered ${errors.username ? 'input-error' : ''}`}
-                                placeholder="Enter your username"
+                                placeholder="Ingresa tu nombre de usuario"
                             />
                             {errors.username && (
                                 <span className="text-error text-sm mt-1">
@@ -187,7 +172,6 @@ export function RegisterForm() {
                             )}
                         </div>
 
-                        {/* Campo Email */}
                         <div className="form-control">
                             <label htmlFor="email" className="label">
                                 <span className="label-text font-semibold">
@@ -201,7 +185,7 @@ export function RegisterForm() {
                                 value={formData.email}
                                 onChange={handleChange}
                                 className={`input input-bordered ${errors.email ? 'input-error' : ''}`}
-                                placeholder="Enter your email address"
+                                placeholder="Ingresa tu correo electrónico"
                             />
                             {errors.email && (
                                 <span className="text-error text-sm mt-1">
@@ -210,7 +194,6 @@ export function RegisterForm() {
                             )}
                         </div>
 
-                        {/* Campo Password */}
                         <div className="form-control">
                             <label htmlFor="password" className="label">
                                 <span className="label-text font-semibold">
@@ -224,7 +207,7 @@ export function RegisterForm() {
                                 value={formData.password}
                                 onChange={handleChange}
                                 className={`input input-bordered ${errors.password ? 'input-error' : ''}`}
-                                placeholder="······"
+                                placeholder="········"
                             />
                             {errors.password && (
                                 <span className="text-error text-sm mt-1">
@@ -236,7 +219,6 @@ export function RegisterForm() {
                             )}
                         </div>
 
-                        {/* Campo Confirmar Password */}
                         <div className="form-control">
                             <label htmlFor="confirmPassword" className="label">
                                 <span className="label-text font-semibold">
@@ -250,7 +232,7 @@ export function RegisterForm() {
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
                                 className={`input input-bordered ${errors.confirmPassword ? 'input-error' : ''}`}
-                                placeholder="······"
+                                placeholder="········"
                             />
                             {errors.confirmPassword && (
                                 <span className="text-error text-sm mt-1">
@@ -259,26 +241,24 @@ export function RegisterForm() {
                             )}
                         </div>
 
-                        {/* Botón de Registro con más espacio */}
                         <div className="pt-15">
                             <button
                                 type="submit"
                                 disabled={loading}
                                 className="btn btn-primary w-full py-3 font-bold text-lg"
                             >
-                                {loading ? t('auth.register.loading') : t('auth.register.title')}
+                                {loading ? t('auth.register.loading') : t('auth.register.submit')}
                             </button>
                         </div>
 
-                        {/* Enlace a Login con más espacio */}
                         <div className="text-center pt-8">
                             <p className="text-base-content/70">
-                                Already have an account?{' '}
+                                {t('auth.register.hasAccount')}{' '}
                                 <Link
                                     to="/login"
                                     className="text-primary font-bold hover:text-primary-focus text-lg"
                                 >
-                                    Sign in instead
+                                    {t('auth.register.loginLink')}
                                 </Link>
                             </p>
                         </div>
