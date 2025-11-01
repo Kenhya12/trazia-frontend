@@ -23,6 +23,11 @@ export interface ApiEndpoints {
         BARCODE: string;
         USDA: string;
     };
+    RAW_MATERIAL_BATCH: {
+        GET_BY_ID: (id: string) => string;
+        UPDATE: (id: string) => string;
+        DELETE: (id: string) => string;
+    };
 }
 
 export const API_ENDPOINTS: ApiEndpoints = {
@@ -47,5 +52,10 @@ export const API_ENDPOINTS: ApiEndpoints = {
         SEARCH: '/api/products/search',
         BARCODE: '/api/products/search-barcode',
         USDA: '/api/products/search-usda',
+    },
+    RAW_MATERIAL_BATCH: {
+        GET_BY_ID: (id: string) => `/api/raw-material-batch/${id}`,
+        UPDATE: (id: string) => `/api/raw-material-batch/${id}/update`,
+        DELETE: (id: string) => `/api/raw-material-batch/${id}/delete`,
     }
 };

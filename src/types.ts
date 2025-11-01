@@ -41,15 +41,21 @@ export interface RawMaterial {
   currentStock: number;
 }
 
+export type RawMaterialLotUnit = 'kg' | 'g' | 'L' | 'ml' | 'unit';
+
 export interface RawMaterialLot {
-    id: string;
-    rawMaterialId: string;
-    supplierId: string;
-    lotNumber: string;
-    purchaseDate: string;
-    receptionDate: string;
-    expiryDate: string;
-    quantity: number;
+  id: string;
+  invoiceNumber: string;
+  batchNumber: string;
+  name: string;
+  rawMaterialId: string;
+  supplierId: string;
+  quantity: number;
+  unit: RawMaterialLotUnit;
+  receivingDate: string;
+  expirationDate: string;
+  documents?: string[];
+  comments?: string;
 }
 
 export interface FinalProduct {

@@ -31,34 +31,40 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ onLogout, user, onUserUpd
     switch (activeView) {
       case 'dashboard':
         return <DashboardHome onNavigate={setActiveView} />;
+
       // Materias Primas
       case 'raw-materials-list':
         return <RawMaterialsPage initialTab="list" />;
-      case 'raw-materials-create':
+      case 'raw-materials-add':
         return <RawMaterialsPage initialTab="add" />;
       case 'raw-material-batches':
         return <RawMaterialBatchesPage />;
+
       // Recetas
       case 'recipes-list':
         return <RecipeTabs openCreateModalOnLoad={false} />;
-      case 'recipes-create':
+      case 'recipes-add':
         return <RecipeTabs openCreateModalOnLoad={true} />;
+
       // Productos Finales
       case 'products-list':
         return <FinalProductsPage initialTab="list" />;
-      case 'products-create':
+      case 'products-add':
         return <FinalProductsPage initialTab="add" />;
       case 'production-lots':
         return <FinalProductsPage initialTab="lots" />;
+
       // Etiquetas
       case 'labels-list':
         return <LabelsPage openCreateModalOnLoad={false} />;
-      case 'labels-create':
+      case 'labels-add':
         return <LabelsPage openCreateModalOnLoad={true} />;
+
       // Reportes
       case 'reports-inventory':
       case 'reports-production':
         return <ReportsPage />;
+
       // Configuración
       case 'config-company':
         return <CompanyPage initialTab="info"/>;
@@ -66,22 +72,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ onLogout, user, onUserUpd
         return <CompanyPage initialTab="users"/>;
       case 'config-prefs':
         return <UserProfilePage user={user} onUserUpdate={onUserUpdate} />;
+
       // Ayuda
       case 'help':
         return <HelpPage />;
 
-      // Fallbacks for old ids (can be removed later)
-      case 'recipes':
-          return <RecipeTabs openCreateModalOnLoad={false} />;
-      case 'raw-materials':
-          return <RawMaterialsPage initialTab="list" />;
-      case 'products':
-          return <FinalProductsPage initialTab="list" />;
-      case 'company-profile':
-          return <CompanyPage initialTab="info" />;
-      case 'profile':
-          return <UserProfilePage user={user} onUserUpdate={onUserUpdate}/>;
-      
       default:
         return (
           <div className="bg-white p-8 rounded-lg shadow text-center">
@@ -93,7 +88,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ onLogout, user, onUserUpd
         );
     }
   };
-
 
   return (
     <DashboardLayout 

@@ -38,8 +38,23 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer 
           {children}
         </div>
         {footer && (
-          <div className="flex items-center justify-end p-4 border-t border-gray-200 rounded-b">
-            {footer}
+          <div className="flex items-center justify-end p-4 border-t border-gray-200 rounded-b space-x-3">
+            {React.Children.map(footer as React.ReactNode, child => {
+              if (React.isValidElement(child) && typeof child.type === 'string' && child.type === 'button') {
+                const button = child as React.ReactElement<{ className?: string }>; // casteo
+                const className = button.props.className || '';
+                const isPrimary = className.includes('primary');
+                const isSecondary = className.includes('secondary');
+                let newClassName = className;
+                if (isPrimary) {
+                  newClassName = `${className} bg-[#006D77] text-white hover:bg-[#005B63]`.trim();
+                } else if (isSecondary) {
+                  newClassName = `${className} bg-white text-[#006D77] border border-[#006D77] hover:bg-[#006D77] hover:text-white`.trim();
+                }
+                return React.cloneElement(button, { className: newClassName });
+              }
+              return child;
+            })}
           </div>
         )}
       </div>

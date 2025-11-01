@@ -24,7 +24,7 @@ const Table = <T extends { id: string | number }>(
               <th
                 key={String(col.accessor)}
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-sm font-bold text-gray-700 uppercase tracking-wider"
               >
                 {col.header}
               </th>
@@ -39,11 +39,25 @@ const Table = <T extends { id: string | number }>(
                 className={`transition-colors duration-200 ${onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                 onClick={() => onRowClick?.(item)}
               >
-                {columns.map((col) => (
-                  <td key={String(col.accessor)} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    {col.render ? col.render(item) : String(item[col.accessor])}
-                  </td>
-                ))}
+                {columns.map((col) => {
+                  if (col.accessor === 'actions') {
+                    return (
+                      <td key={String(col.accessor)} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 flex space-x-2">
+                        <button className="border border-[#FFBC42] text-[#FFBC42] hover:bg-[#FFBC42] hover:text-white px-3 py-1 rounded">
+                          Previsualizar
+                        </button>
+                        <button className="border border-[#2A9D8F] text-[#2A9D8F] hover:bg-[#2A9D8F] hover:text-white px-3 py-1 rounded">
+                          Editar
+                        </button>
+                      </td>
+                    );
+                  }
+                  return (
+                    <td key={String(col.accessor)} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {col.render ? col.render(item) : String(item[col.accessor])}
+                    </td>
+                  );
+                })}
               </tr>
             ))
           ) : (

@@ -125,12 +125,12 @@ export const SIDEBAR_CONFIG = [
     },
     {
         id: 'raw-materials-main',
-        name: 'Materias Primas',
+        name: 'Abastecimiento & Stock',
         icon: <BeakerIcon className="w-5 h-5" />,
         children: [
-            { id: 'raw-materials-list', name: 'Listado', parentId: 'raw-materials-main' },
-            { id: 'raw-materials-create', name: 'Crear Nueva', parentId: 'raw-materials-main' },
-            { id: 'raw-material-batches', name: 'Lotes', parentId: 'raw-materials-main' },
+            { id: 'raw-materials-list', name: 'Materia Prima', parentId: 'raw-materials-main' },
+            { id: 'raw-materials-create', name: '+ Nuevo Insumo', parentId: 'raw-materials-main' },
+            { id: 'raw-material-batches', name: 'Gestión de lotes', parentId: 'raw-materials-main' },
         ],
     },
     {

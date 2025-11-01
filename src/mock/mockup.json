@@ -1,0 +1,59 @@
+{
+    "rawMaterials": [
+        { "id": "RM1", "name": "Leche Entera" },
+        { "id": "RM2", "name": "Aceite de Jojoba" },
+        { "id": "RM3", "name": "Cera de Abeja" }
+    ],
+    "suppliers": [
+        { "id": "S1", "name": "Proveedor A" },
+        { "id": "S2", "name": "Proveedor B" },
+        { "id": "S3", "name": "Proveedor S.A." }
+    ],
+    "batches": [
+        {
+            "id": "B1",
+            "batchNumber": "LE-20240601",
+            "rawMaterialId": "RM1",
+            "supplierId": "S3",
+            "quantity": 1000,
+            "unit": "L",
+            "invoiceNumber": "INV-2024-001",
+            "name": "Leche Entera",
+            "purchaseDate": "2024-06-01",
+            "receivingDate": "2024-06-01",
+            "expirationDate": "2024-07-01",
+            "documents": ["factura.pdf", "certificado.pdf"],
+            "comments": "Entrega en frío"
+        },
+        {
+            "id": "B2",
+            "batchNumber": "LJ-20240510",
+            "rawMaterialId": "RM2",
+            "supplierId": "S1",
+            "quantity": 50,
+            "unit": "kg",
+            "invoiceNumber": "INV-2024-002",
+            "name": "Aceite de Jojoba",
+            "purchaseDate": "2024-05-10",
+            "receivingDate": "2024-05-11",
+            "expirationDate": "2025-05-10",
+            "documents": ["factura.pdf"],
+            "comments": "Revisar viscosidad antes de almacenar"
+        },
+        {
+            "id": "B3",
+            "batchNumber": "CA-20240512",
+            "rawMaterialId": "RM3",
+            "supplierId": "S2",
+            "quantity": 25,
+            "unit": "kg",
+            "invoiceNumber": "INV-2024-003",
+            "name": "Cera de Abeja",
+            "purchaseDate": "2024-05-12",
+            "receivingDate": "2024-05-13",
+            "expirationDate": "2025-04-20",
+            "documents": [],
+            "comments": "Requiere almacenaje en lugar fresco y seco"
+        }
+    ]
+}
