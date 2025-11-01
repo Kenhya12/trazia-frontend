@@ -75,6 +75,12 @@
         "confirmPassword": {
             "required": "Por favor confirma tu contraseña",
             "mismatch": "Las contraseñas no coinciden"
+        },
+        "company": {
+            "businessNameRequired": "El nombre de la empresa es obligatorio",
+            "taxIdRequired": "El NIF/CIF es obligatorio",
+            "addressRequired": "La dirección es obligatoria",
+            "countryRequired": "El país es obligatorio"
         }
     },
     "dashboard": {
@@ -90,6 +96,51 @@
             "nutritionDesc": "Sigue información nutricional y recomendaciones",
             "history": "Historial",
             "historyDesc": "Ver tu historial de búsquedas y escaneos"
+        }
+    },
+    "sidebar": {
+        "subtitle": "Sistema de Gestión",
+        "rawMaterials": "Materias Primas",
+        "suppliers": "Proveedores",
+        "recipes": "Recetas",
+        "labels": "Etiquetas",
+        "orders": "Pedidos",
+        "sales": "Ventas",
+        "settings": "Configuración",
+        "logout": "Cerrar Sesión"
+    },
+    "footer": {
+        "copyright": "Copyright © {{year}} - Trazia Project",
+        "rightsReserved": "Todos los derechos reservados"
+    },
+    "company": {
+        "registration": {
+            "title": "Registro de Empresa",
+            "subtitle": "Completa la información de tu empresa para comenzar",
+            "businessName": "Nombre de la Empresa",
+            "businessNamePlaceholder": "Ingresa el nombre legal de tu empresa",
+            "taxId": "NIF/CIF",
+            "taxIdPlaceholder": "Ingresa el NIF o CIF de la empresa",
+            "address": "Dirección",
+            "addressPlaceholder": "Dirección completa de la empresa",
+            "country": "País",
+            "countryPlaceholder": "País donde opera la empresa",
+            "phone": "Teléfono",
+            "phonePlaceholder": "Número de teléfono de contacto",
+            "email": "Correo Electrónico",
+            "emailPlaceholder": "correo@empresa.com",
+            "website": "Sitio Web",
+            "websitePlaceholder": "https://tuempresa.com",
+            "commercialRegistry": "Registro Mercantil",
+            "commercialRegistryPlaceholder": "Número de registro mercantil",
+            "healthRegistration": "Registro Sanitario",
+            "healthRegistrationPlaceholder": "Número de registro sanitario",
+            "logo": "Logo de la Empresa",
+            "logoHelp": "Formatos aceptados: JPG, PNG, SVG. Máx. 5MB",
+            "submit": "Registrar Empresa",
+            "errors": {
+                "serverError": "Error al registrar la empresa"
+            }
         }
     },
     "products": {

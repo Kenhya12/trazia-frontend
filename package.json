@@ -14,6 +14,8 @@
     "@radix-ui/react-icons": "^1.3.2",
     "@shadcn/ui": "^0.0.4",
     "@tailwindcss/vite": "^4.1.16",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
     "@tanstack/react-query": "^5.90.2",
     "axios": "^1.13.0",
     "class-variance-authority": "^0.7.1",
@@ -39,6 +41,7 @@
     "@iconify/tailwind4": "^1.0.6",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
+    "@types/node": "^24.9.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
@@ -54,8 +57,8 @@
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.16",
+    "typescript": "^5.9.3",
     "vite": "^7.1.9",
     "vitest": "^3.2.4"
   }
-  
 }

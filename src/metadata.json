@@ -1,0 +1,5 @@
+{
+  "name": "TraziaProject - Recipe Management",
+  "description": "A web application for food companies to manage recipes, calculate nutritional information, and generate label-ready datasets in compliance with EU regulations.",
+  "requestFramePermissions": []
+}

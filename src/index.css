@@ -1,30 +1,25 @@
-/* index.css - Configuración optimizada */
-/* index.css - Para Tailwind v3.4.1 */
-@import "tailwindcss";
-@plugin "flyonui";
-@import "flyonui/variants.css";
-@source "./node_modules/flyonui/flyonui.js";
-
-
-/* Estilos globales Fuente */
-body {
-  @apply bg-gray-100 text-gray-800 font-sans;
-}
-
-/* tema Global, index.css */
+/* stylelint-disable unknownAtRules */
 
 @import "tailwindcss";
-@plugin "flyonui" {
-  themes: light --default, dark --prefersdark, slack;
-}
-@import "flyonui/variants.css";
 
-@plugin "flyonui" {
-  themes: light --default, dark --prefersdark, slack; /* 👈 Slack agregado */
+@theme {
+  /* Tus colores personalizados */
+  --color-primary: #839788;      /* Verde tierra principal */
+  --color-primary-dark: #687a6a; /* Verde tierra oscuro */
+  --color-primary-light: #9bae9c; /* Verde tierra claro */
+  
+  --color-secondary: #73877B;    /* Gris verde secundario */
+  --color-secondary-dark: #5a6b60; /* Gris verde oscuro */
+  --color-secondary-light: #8fa395; /* Gris verde claro */
+  
+  /* Colores del sistema (opcionales) */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
 }
-@import "flyonui/variants.css";
 
-/* Fuente Lato global */
+/* Estilos globales */
 body {
   font-family: 'Lato', sans-serif;
 }
