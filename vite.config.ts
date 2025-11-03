@@ -13,6 +13,13 @@ export default defineConfig({
     port: 3001,
     strictPort: true,
     open: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:9090',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
     hmr: {
       protocol: 'ws',
       host: 'localhost',

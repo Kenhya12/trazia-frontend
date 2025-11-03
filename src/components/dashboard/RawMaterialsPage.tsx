@@ -40,7 +40,7 @@ const MOCK_RAW_MATERIALS: RawMaterialLot[] = [
 type RawMaterialTab = 'list' | 'add' | 'history';
 
 interface RawMaterialsPageProps {
-    initialTab: 'list' | 'add';
+  initialTab: 'list' | 'add';
 }
 
 const RawMaterialsPage: React.FC<RawMaterialsPageProps> = ({ initialTab }) => {
@@ -62,7 +62,7 @@ const RawMaterialsPage: React.FC<RawMaterialsPageProps> = ({ initialTab }) => {
   const [suppliers] = useState<Supplier[]>(MOCK_SUPPLIERS);
   const [newBatch, setNewBatch] = useState<RawMaterialLot>({
     id: '',
-    rawMaterialId: '', 
+    rawMaterialId: '',
     supplierId: suppliers[0]?.id || '',
     invoiceNumber: '',
     name: '',
@@ -146,15 +146,15 @@ const RawMaterialsPage: React.FC<RawMaterialsPageProps> = ({ initialTab }) => {
 
   const columns = [
     { header: 'Nombre', accessor: 'name' as keyof RawMaterialLot },
-    { 
-      header: 'Proveedor', 
+    {
+      header: 'Proveedor',
       accessor: 'supplierId' as keyof RawMaterialLot,
       render: (item: RawMaterialLot) => suppliers.find(s => s.id === item.supplierId)?.name || 'N/A'
     },
     { header: 'Número de Lote', accessor: 'batchNumber' as keyof RawMaterialLot },
     { header: 'Número de Factura', accessor: 'invoiceNumber' as keyof RawMaterialLot },
-    { 
-      header: 'Cantidad', 
+    {
+      header: 'Cantidad',
       accessor: 'quantity' as keyof RawMaterialLot,
       render: (item: RawMaterialLot) => (
         <span>
@@ -170,13 +170,13 @@ const RawMaterialsPage: React.FC<RawMaterialsPageProps> = ({ initialTab }) => {
       header: 'Fecha de Vencimiento',
       accessor: 'expirationDate' as keyof RawMaterialLot,
     },
-    { 
+    {
       header: 'Acciones',
       accessor: 'id' as keyof RawMaterialLot,
       render: (item: RawMaterialLot) => (
         <div className="space-x-2">
-            <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); alert(`Editar lote ${item.batchNumber} de ${item.name}`)}}>Editar</Button>
-            <Button size="sm" variant="danger" onClick={(e) => { e.stopPropagation(); handleDeleteBatch(item.id)}}>Eliminar</Button>
+          <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); alert(`Editar lote ${item.batchNumber} de ${item.name}`) }}>Editar</Button>
+          <Button size="sm" variant="danger" onClick={(e) => { e.stopPropagation(); handleDeleteBatch(item.id) }}>Eliminar</Button>
         </div>
       ),
     },
@@ -289,8 +289,8 @@ const RawMaterialsPage: React.FC<RawMaterialsPageProps> = ({ initialTab }) => {
 
   const TabButton = ({ id, icon, label }: { id: RawMaterialTab; icon: React.ReactNode; label: string }) => (
     <button onClick={() => setActiveTab(id)} className={`flex items-center space-x-2 py-2 px-4 text-sm font-medium ${activeTab === id ? 'border-b-2 border-slate-700 text-slate-700' : 'text-gray-500 hover:text-gray-700'}`}>
-        {icon}
-        <span>{label}</span>
+      {icon}
+      <span>{label}</span>
     </button>
   );
 
@@ -298,9 +298,9 @@ const RawMaterialsPage: React.FC<RawMaterialsPageProps> = ({ initialTab }) => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <div className="flex border-b border-gray-300">
-          <TabButton id="list" icon={<ListBulletIcon className="w-5 h-5"/>} label="Listado de Materias Primas" />
-          <TabButton id="add" icon={<PlusCircleIcon className="w-5 h-5"/>} label="Agregar Nueva" />
-          <TabButton id="history" icon={<ClockIcon className="w-5 h-5"/>} label="Historial de Entradas / Lotes" />
+          <TabButton id="list" icon={<ListBulletIcon className="w-5 h-5" />} label="Listado de Materias Primas" />
+          <TabButton id="add" icon={<PlusCircleIcon className="w-5 h-5" />} label="Agregar Nueva" />
+          <TabButton id="history" icon={<ClockIcon className="w-5 h-5" />} label="Historial de Entradas / Lotes" />
         </div>
       </div>
 

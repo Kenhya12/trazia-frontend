@@ -3,9 +3,9 @@ import { API_ENDPOINTS } from './endpoints';
 
 interface AuthResponse {
     token: string;
-    refreshToken: string;
     username: string;
     email: string;
+    enabled?: boolean;
 }
 
 interface RefreshResponse {

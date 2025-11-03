@@ -31,17 +31,25 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess, onSwitch
     try {
       const response = await authApi.register({ username: name, email, password });
       StorageService.setToken(response.token);
-      StorageService.setRefreshToken(response.refreshToken);
-      StorageService.setUsername(response.username);
-      onRegisterSuccess({ name: response.username, email: response.email, password });
+      // StorageService.setRefreshToken(response.refreshToken); //
+      StorageService.setUsername(response.username || name);
+      onRegisterSuccess({ username: response.username || name, email: response.email || email, password });
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al registrar el usuario.');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
+    <div
+      className="min-h-screen flex items-center justify-center relative"
+      style={{
+        backgroundImage: "url('https://images.unsplash.com/photo-1661956600040-65a77a8c6f87?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5NjE0NzZ8MHwxfHNlYXJjaHwxfHxjYXJkb24lMjBhbmQlMjBmcmV1dG98ZW58MHx8fHwxNjgwOTk3MjQ1&ixlib=rb-4.0.3&q=80&w=1080')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      <div className="absolute inset-0 bg-white/50"></div>
+      <div className="relative max-w-md w-full bg-white p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Crear Cuenta en Trazia</h2>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">

@@ -17,7 +17,7 @@ export interface Recipe {
 
 export interface User {
   id: string;
-  name: string;
+  username: string;
   email: string;
   password?: string;
   role: 'admin' | 'operator';
@@ -113,3 +113,4 @@ export interface ProductLabel {
   version: number;
   status: 'draft' | 'approved' | 'published';
 }
+

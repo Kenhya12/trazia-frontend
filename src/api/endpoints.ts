@@ -1,5 +1,3 @@
-// src/api/endpoints.ts
-
 export interface ApiEndpoints {
     AUTH: {
         LOGIN: string;
@@ -24,7 +22,22 @@ export interface ApiEndpoints {
         USDA: string;
     };
     RAW_MATERIAL_BATCH: {
+        GET_ALL: string;
         GET_BY_ID: (id: string) => string;
+        CREATE: string;
+        UPDATE: (id: string) => string;
+        DELETE: (id: string) => string;
+    };
+    SUPPLIERS: {
+        GET_ALL: string;
+        CREATE: string;
+        UPDATE: (id: string) => string;
+        DELETE: (id: string) => string;
+    };
+    RAW_MATERIALS: {
+        GET_ALL: string;
+        GET_BY_ID: (id: string) => string;
+        CREATE: string;
         UPDATE: (id: string) => string;
         DELETE: (id: string) => string;
     };
@@ -32,30 +45,45 @@ export interface ApiEndpoints {
 
 export const API_ENDPOINTS: ApiEndpoints = {
     AUTH: {
-        LOGIN: '/api/auth/login',
-        REGISTER: '/api/auth/register',
-        REFRESH: '/api/auth/refresh',
-        LOGOUT: '/api/auth/logout',
-        VALIDATE: '/api/auth/validate'
+        LOGIN: '/auth/login',
+        REGISTER: '/auth/register',
+        REFRESH: '/auth/refresh',
+        LOGOUT: '/auth/logout',
+        VALIDATE: '/auth/validate'
     },
     COMPANY: {
-        REGISTER: '/api/company/register',
-        UPDATE: '/api/company/update',
-        GET_CURRENT: '/api/company/current'
+        REGISTER: '/company/register',
+        UPDATE: '/company/update',
+        GET_CURRENT: '/company/current'
     },
     USER: {
         PROFILE: '/user/profile',
         UPDATE: '/user/update'
     },
     PRODUCTS: {
-        BASE: '/api/products',
-        SEARCH: '/api/products/search',
-        BARCODE: '/api/products/search-barcode',
-        USDA: '/api/products/search-usda',
+        BASE: '/products',
+        SEARCH: '/products/search',
+        BARCODE: '/products/search-barcode',
+        USDA: '/products/search-usda',
     },
     RAW_MATERIAL_BATCH: {
-        GET_BY_ID: (id: string) => `/api/raw-material-batch/${id}`,
-        UPDATE: (id: string) => `/api/raw-material-batch/${id}/update`,
-        DELETE: (id: string) => `/api/raw-material-batch/${id}/delete`,
+        GET_ALL: '/api/raw-material-batches',
+        GET_BY_ID: (id: string) => `/api/raw-material-batches/${id}`,
+        CREATE: '/api/raw-material-batches',
+        UPDATE: (id: string) => `/api/raw-material-batches/${id}`,
+        DELETE: (id: string) => `/api/raw-material-batches/${id}`,
+    },
+    SUPPLIERS: {
+        GET_ALL: '/api/suppliers',
+        CREATE: '/api/suppliers',
+        UPDATE: (id: string) => `/api/suppliers/${id}`,
+        DELETE: (id: string) => `/api/suppliers/${id}`,
+    },
+    RAW_MATERIALS: {
+        GET_ALL: '/api/raw-materials',
+        GET_BY_ID: (id: string) => `/api/raw-materials/${id}`,
+        CREATE: '/api/raw-materials',
+        UPDATE: (id: string) => `/api/raw-materials/${id}`,
+        DELETE: (id: string) => `/api/raw-materials/${id}`,
     }
 };

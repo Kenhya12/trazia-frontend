@@ -1,68 +1,46 @@
-import axios from 'axios';
-import { StorageService } from '../services/storage.service';
+import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
-const BASE_URL = 'http://localhost:9090';
+const API_BASE_URL = 'http://localhost:9090/api';
 
-// Crear instancia de axios
-const client = axios.create({
-    baseURL: BASE_URL,
+/**
+ * Instancia global de Axios configurada para el proyecto Trazia
+ */
+const apiClient: AxiosInstance = axios.create({
+    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Interceptor de REQUEST - Agregar token automáticamente
-client.interceptors.request.use(
-    (config) => {
-        const token = StorageService.getToken();
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+/**
+ * Interceptor de solicitud - agrega automáticamente el token JWT
+ */
+apiClient.interceptors.request.use(
+    (config: InternalAxiosRequestConfig) => {
+        const token = localStorage.getItem('token');
+        if (token && config.headers) {
+            config.headers.set('Authorization', `Bearer ${token}`);
         }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
-// Interceptor de RESPONSE - Manejar errores y refresh token
-client.interceptors.response.use(
-    (response) => response,
+/**
+ * Interceptor de respuesta - maneja errores globales y expiración de sesión
+ */
+apiClient.interceptors.response.use(
+    (response: AxiosResponse) => response,
     async (error) => {
-        const originalRequest = error.config;
-
-        // Si el error es 401 (token expirado) y no es el refresh endpoint
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-
-            try {
-                // Intentar renovar el token
-                const refreshToken = StorageService.getRefreshToken();
-
-                if (refreshToken) {
-                    const { data } = await axios.post(
-                        `${BASE_URL}/auth/refresh`,
-                        { refreshToken }
-                    );
-
-                    // Guardar nuevo token
-                    StorageService.setToken(data.token);
-                    StorageService.setRefreshToken(data.refreshToken);
-
-                    // Reintentar la petición original
-                    originalRequest.headers.Authorization = `Bearer ${data.token}`;
-                    return client(originalRequest);
-                }
-            } catch (refreshError) {
-                // Si el refresh falla, limpiar todo y redirigir
-                StorageService.clear();
-                window.location.href = '/login';
-                return Promise.reject(refreshError);
-            }
+        // ❌ Desactivar refresh token porque el backend NO lo soporta aún
+        if (error.response?.status === 401) {
+            console.warn('⚠️ Token expirado, redirigiendo a login...');
+            localStorage.clear();
+            window.location.href = '/login';
         }
 
         return Promise.reject(error);
     }
 );
 
-export default client;
+export default apiClient;

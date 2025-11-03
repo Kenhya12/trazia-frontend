@@ -21,14 +21,10 @@ const handleSubmit = async (e: React.FormEvent) => {
   try {
     const response = await authApi.login({ email, password });
     StorageService.setToken(response.token);
-    StorageService.setRefreshToken(response.refreshToken);
-    StorageService.setUsername(response.username);
-    
-    // Llama a onLoginSuccess pero no dependas del return value
+    // StorageService.setRefreshToken(response.refreshToken); //
+    StorageService.setUsername(response.username || email);
+
     onLoginSuccess({ email, password });
-    
-    // Redirige directamente aquí
-    // window.location.href = '/dashboard'; // O la ruta que corresponda
     
   } catch (err: any) {
     setError(err?.response?.data?.message || 'Credenciales incorrectas.');
@@ -36,8 +32,11 @@ const handleSubmit = async (e: React.FormEvent) => {
 };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: "url('https://images.unsplash.com/photo-1524222717473-730000096953?auto=format&fit=crop&w=1350&q=80')" }}
+    >
+      <div className="bg-white bg-opacity-90 p-8 rounded-lg shadow-md max-w-md w-full">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Iniciar Sesión en Trazia</h2>
         
         {statusMessage && <p className="mb-4 text-center text-sm font-medium text-green-600 bg-green-50 p-3 rounded-md">{statusMessage}</p>}
