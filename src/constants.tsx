@@ -203,7 +203,7 @@ export const MOCK_SUPPLIERS: Supplier[] = [
     { id: 'S005', name: 'Azucarera Española' },
 ];
 
-export const MOCK_RAW_MATERIALS: RawMaterial[] = [
+/* export const MOCK_RAW_MATERIALS: RawMaterial[] = [
     { id: 'HT000', name: 'Harina de Trigo (Todo uso)', supplierId: 'S001', internalCode: 'HT000', unit: 'kg', category: 'Harinas', minStock: 50, currentStock: 120 },
     { id: 'HTF', name: 'Harina de Fuerza', supplierId: 'S001', internalCode: 'HTF', unit: 'kg', category: 'Harinas', minStock: 100, currentStock: 85 },
     { id: 'AZB', name: 'Azúcar Blanco', supplierId: 'S005', internalCode: 'AZB', unit: 'kg', category: 'Endulzantes', minStock: 40, currentStock: 50 },
@@ -216,6 +216,14 @@ export const MOCK_RAW_MATERIALS: RawMaterial[] = [
     { id: 'SAL', name: 'Sal Marina Fina', supplierId: 'S005', internalCode: 'SAL', unit: 'g', category: 'Especias', minStock: 2000, currentStock: 3500 },
     { id: 'MZN', name: 'Manzanas Golden', supplierId: 'S003', internalCode: 'MZN', unit: 'kg', category: 'Frutas', minStock: 15, currentStock: 12 },
     { id: 'AGU', name: 'Agua Filtrada', supplierId: 'S001', internalCode: 'AGU', unit: 'L', category: 'Líquidos', minStock: 100, currentStock: 250 },
+]; */
+
+export const MOCK_RAW_MATERIALS = [
+    { id: 1, name: "Harina de Trigo", unit: "kg" },
+    { id: 2, name: "Aceite de Girasol", unit: "L" },
+    { id: 3, name: "Alcohol Etílico", unit: "ml" },
+    { id: 4, name: "Agua Desmineralizada", unit: "L" },
+    { id: 5, name: "Fragancia Floral", unit: "ml" }
 ];
 
 export const MOCK_BATCHES: RawMaterialLot[] = [
@@ -324,3 +332,4 @@ export const MOCK_PRODUCTION_KPI_DATA = (() => {
     });
     return Object.entries(weeks).map(([name, value]) => ({ name, value })).reverse();
 })();
+

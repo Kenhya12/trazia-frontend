@@ -1,18 +1,14 @@
-export interface RecipeIngredient {
-  rawMaterialId: string;
-  quantityGrams: number;
-}
+/*USUARIO*/
 
-export interface Recipe {
-  id: string;
-  name: string;
-  description: string;
-  retentionFactor: number;
-  finalProductId: string | null;
-  process: string;
-  observations: string;
-  ingredients: RecipeIngredient[];
-  lastUpdated: string;
+export interface Company {
+    name: string;
+    taxId: string; // CIF / NIF
+    address: string;
+    country: string;
+    phone: string;
+    logoUrl: string | null;
+    email: string;
+    sector: string;
 }
 
 export interface User {
@@ -45,9 +41,9 @@ export type RawMaterialLotUnit = 'kg' | 'g' | 'L' | 'ml' | 'unit';
 
 export interface RawMaterialLot {
   id: string;
+  name: string;
   invoiceNumber: string;
   batchNumber: string;
-  name: string;
   rawMaterialId: string;
   supplierId: string;
   quantity: number;
@@ -80,16 +76,9 @@ export interface RetentionFactor {
     factor: number;
 }
 
-export interface Company {
-    name: string;
-    taxId: string; // CIF / NIF
-    address: string;
-    country: string;
-    phone: string;
-    logoUrl: string | null;
-    email: string;
-    sector: string;
-}
+
+
+/*ETIQUETAS*/
 
 export type LabelSymbol = 'recycling' | 'ce' | 'gluten_free' | 'vegan';
 
@@ -114,3 +103,76 @@ export interface ProductLabel {
   status: 'draft' | 'approved' | 'published';
 }
 
+
+/*RECETAS*/
+
+export interface RecipeIngredient {
+  rawMaterialId: string;
+  quantityGrams: number;
+}
+
+
+// Represents the structure for an ingredient when creating/updating a recipe
+export interface RecipeIngredientRequest {
+  productId: number;
+  quantityGrams: number;
+  displayOrder: number;
+}
+
+// Represents a single ingredient as returned from the backend inside a full recipe
+export interface RecipeIngredientResponse {
+  id: number;
+  product: { id: number; name: string; }; // Simplified ProductDTO
+  quantityGrams: number;
+  displayOrder: number;
+  cost: number;
+}
+
+// Represents the payload for creating or updating a recipe
+export interface RecipeRequest {
+  name: string;
+  description: string;
+  yieldWeightGrams: number;
+  ingredients: RecipeIngredientRequest[];
+}
+
+// Represents the full recipe object from the backend
+export interface Recipe {
+  id: number;
+  name: string;
+  description: string;
+  yieldWeightGrams: number;
+  ingredients: RecipeIngredientResponse[];
+  totalCost: number;
+  costPerGram: number;
+  costPer100g: number;
+  totalIngredientsWeight: number;
+  yieldLossPercentage: number;
+  createdAt: string;
+  updatedAt: string;
+  userId: number;
+}
+
+/* export interface Recipe {
+  id: string;
+  name: string;
+  description: string;
+  retentionFactor: number;
+  finalProductId: string | null;
+  process: string;
+  observations: string;
+  ingredients: RecipeIngredient[];
+  lastUpdated: string;
+} */
+
+
+// Represents a summary of a recipe for list views
+export interface RecipeSummary {
+  id: number;
+  name: string;
+  description: string;
+  yieldWeightGrams: number;
+  totalCost: number;
+  ingredientCount: number;
+  updatedAt: string;
+}

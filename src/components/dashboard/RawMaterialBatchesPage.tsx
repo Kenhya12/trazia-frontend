@@ -3,7 +3,7 @@ import type { RawMaterialLot as RawMaterialLotBase } from '../../types.ts';
 import Table from '../ui/Table';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
-import { ClipboardListIcon, PlusCircleIcon, ClockIcon } from '../../constants';
+import { ClipboardListIcon, PlusCircleIcon, ClockIcon } from '../../constants'; // ✅ Solo iconos que existen
 import { rawMaterialBatchApi, RawMaterialBatch } from '../../api/rawMaterialBatchApi';
 import { supplierApi, Supplier } from '../../api/supplierApi';
 import { rawMaterialApi, RawMaterial } from '../../api/rawMaterialApi';
@@ -12,7 +12,7 @@ type RawMaterialLotUnit = "L" | "kg" | "g" | "ml" | "unit";
 
 type RawMaterialLot = Omit<RawMaterialLotBase, 'unit' | 'documents'> & {
   unit: RawMaterialLotUnit;
-  documents: string[];
+  documents: File[];
 };
 
 const MOCK_UNITS: Array<RawMaterialLotUnit> = ['kg', 'g', 'L', 'ml', 'unit'];
@@ -24,10 +24,11 @@ const RawMaterialBatchesPage: React.FC = () => {
   const [rawMaterials, setRawMaterials] = useState<RawMaterial[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getTodayDateString = () => new Date().toISOString().split('T')[0];
 
-  const [newBatch, setNewBatch] = useState<Omit<RawMaterialLot, 'id'>>({
+  const [newBatch, setNewBatch] = useState<Omit<RawMaterialBatch, 'id'>>({
     invoiceNumber: '',
     batchNumber: '',
     name: '',
@@ -90,11 +91,6 @@ const RawMaterialBatchesPage: React.FC = () => {
         ...prev,
         quantity: parseFloat(value) || 0,
       }));
-    } else if (name === 'documents') {
-      setNewBatch(prev => ({
-        ...prev,
-        documents: value ? value.split(',').map((s) => s.trim()) : [],
-      }));
     } else if (name === 'supplierId' || name === 'rawMaterialId') {
       setNewBatch(prev => ({
         ...prev,
@@ -110,9 +106,23 @@ const RawMaterialBatchesPage: React.FC = () => {
 
   const handleAddBatch = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
-      const createdBatch = await rawMaterialBatchApi.create(newBatch);
+      // ✅ ENVIAR COMO JSON DIRECTAMENTE - SIN FormData
+      const createdBatch = await rawMaterialBatchApi.create({
+        invoiceNumber: newBatch.invoiceNumber,
+        batchNumber: newBatch.batchNumber,
+        name: newBatch.name,
+        supplierId: newBatch.supplierId,
+        rawMaterialId: newBatch.rawMaterialId,
+        quantity: newBatch.quantity,
+        unit: newBatch.unit,
+        receivingDate: newBatch.receivingDate,
+        expirationDate: newBatch.expirationDate,
+        comments: newBatch.comments,
+      });
+      
       setBatches(prev => [...prev, createdBatch as RawMaterialLot]);
       
       // Reset form
@@ -126,7 +136,6 @@ const RawMaterialBatchesPage: React.FC = () => {
         unit: MOCK_UNITS[0],
         receivingDate: getTodayDateString(),
         expirationDate: getTodayDateString(),
-        documents: [],
         comments: '',
       });
       
@@ -135,6 +144,8 @@ const RawMaterialBatchesPage: React.FC = () => {
     } catch (err: any) {
       console.error('Error creando lote:', err);
       alert(err.message || 'Error al crear lote');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -173,11 +184,6 @@ const RawMaterialBatchesPage: React.FC = () => {
     { header: 'Fecha Recepción', accessor: 'receivingDate' as keyof RawMaterialLot },
     { header: 'Fecha Vencimiento', accessor: 'expirationDate' as keyof RawMaterialLot },
     {
-      header: 'Documentos',
-      accessor: 'documents' as keyof RawMaterialLot,
-      render: (item: RawMaterialLot) => item.documents && item.documents.length > 0 ? item.documents.join(', ') : '—'
-    },
-    {
       header: 'Comentarios',
       accessor: 'comments' as keyof RawMaterialLot,
       render: (item: RawMaterialLot) => item.comments && item.comments.trim() !== '' ? item.comments : '—'
@@ -211,6 +217,22 @@ const RawMaterialBatchesPage: React.FC = () => {
     });
   }, [batches]);
 
+  // ✅ FORM SECTION usando solo iconos que SABEMOS que existen
+  const FormSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+      <div className="flex items-center space-x-2 mb-4 pb-3 border-b border-gray-100">
+        <div className="text-slate-600">
+          {/* Usar PlusCircleIcon para todo temporalmente - o dime qué iconos tienes */}
+          <PlusCircleIcon className="w-5 h-5" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+      </div>
+      <div className="space-y-4">
+        {children}
+      </div>
+    </div>
+  );
+
   const renderContent = () => {
     if (loading) {
       return <div className="p-4 text-center">Cargando...</div>;
@@ -225,50 +247,173 @@ const RawMaterialBatchesPage: React.FC = () => {
         return <Table columns={columns} data={batches} />;
       case 'add':
         return (
-          <form onSubmit={handleAddBatch} className="space-y-4 p-4">
-            <h2 className="text-xl font-semibold">Registrar Nuevo Lote de Materia Prima</h2>
-            
-            <Input label="Nº de Factura" type="text" name="invoiceNumber" value={newBatch.invoiceNumber} onChange={handleInputChange} required />
-            <Input label="Nº de Lote" type="text" name="batchNumber" value={newBatch.batchNumber} onChange={handleInputChange} required />
-            <Input label="Nombre" type="text" name="name" value={newBatch.name} onChange={handleInputChange} required />
-            
-            <div>
-              <label className="block text-sm font-medium mb-1">Proveedor</label>
-              <select name="supplierId" value={newBatch.supplierId} onChange={handleInputChange} className="w-full p-2 border rounded" required>
-                {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-2">Registrar Nuevo Lote de Materia Prima</h2>
+              <p className="text-gray-600">Complete la información del lote organizada por secciones</p>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium mb-1">Materia Prima</label>
-              <select name="rawMaterialId" value={newBatch.rawMaterialId} onChange={handleInputChange} className="w-full p-2 border rounded" required>
-                {rawMaterials.map(rm => <option key={rm.id} value={rm.id}>{rm.name}</option>)}
-              </select>
-            </div>
-            
-            <Input label="Cantidad" type="number" name="quantity" value={newBatch.quantity} onChange={handleInputChange} required />
-            
-            <div>
-              <label className="block text-sm font-medium mb-1">Unidad</label>
-              <select name="unit" value={newBatch.unit} onChange={handleInputChange} className="w-full p-2 border rounded">
-                {MOCK_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-              </select>
-            </div>
-            
-            <Input label="Fecha de Recepción" type="date" name="receivingDate" value={newBatch.receivingDate} onChange={handleInputChange} required />
-            <Input label="Fecha de Vencimiento" type="date" name="expirationDate" value={newBatch.expirationDate} onChange={handleInputChange} required />
-            <Input label="Documentos (separados por comas)" type="text" name="documents" value={newBatch.documents.join(', ')} onChange={handleInputChange} />
-            
-            <div>
-              <label className="block text-sm font-medium mb-1">Comentarios</label>
-              <textarea name="comments" value={newBatch.comments} onChange={handleInputChange} className="w-full p-2 border rounded" rows={3} />
-            </div>
-            
-            <div className="flex space-x-2">
-              <Button onClick={() => setActiveTab('list')}>Cancelar</Button>
-              <Button type="submit">Guardar Lote</Button>
-            </div>
-          </form>
+
+            <form onSubmit={handleAddBatch} className="space-y-6">
+              {/* Sección 1: Información del Lote */}
+              <FormSection title="Información del Lote">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input 
+                    label="Nº de Factura" 
+                    type="text" 
+                    name="invoiceNumber" 
+                    value={newBatch.invoiceNumber} 
+                    onChange={handleInputChange} 
+                    required 
+                    placeholder="Ej: FACT-001"
+                  />
+                  <Input 
+                    label="Nº de Lote" 
+                    type="text" 
+                    name="batchNumber" 
+                    value={newBatch.batchNumber} 
+                    onChange={handleInputChange} 
+                    required 
+                    placeholder="Ej: BATCH-2024-001"
+                  />
+                  <div className="md:col-span-2">
+                    <Input 
+                      label="Nombre del Lote" 
+                      type="text" 
+                      name="name" 
+                      value={newBatch.name} 
+                      onChange={handleInputChange} 
+                      required 
+                      placeholder="Ej: Harina de Trigo Premium"
+                    />
+                  </div>
+                </div>
+              </FormSection>
+
+              {/* Sección 2: Proveedor y Materia Prima */}
+              <FormSection title="Proveedor y Materia Prima">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Proveedor</label>
+                    <select 
+                      name="supplierId" 
+                      value={newBatch.supplierId} 
+                      onChange={handleInputChange} 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 bg-white"
+                      required
+                    >
+                      <option value="">Seleccione un proveedor</option>
+                      {suppliers.map(s => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Materia Prima</label>
+                    <select 
+                      name="rawMaterialId" 
+                      value={newBatch.rawMaterialId} 
+                      onChange={handleInputChange} 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 bg-white"
+                      required
+                    >
+                      <option value="">Seleccione materia prima</option>
+                      {rawMaterials.map(rm => (
+                        <option key={rm.id} value={rm.id}>{rm.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </FormSection>
+
+              {/* Sección 3: Cantidades y Unidades */}
+              <FormSection title="Cantidades y Unidades">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input 
+                    label="Cantidad" 
+                    type="number" 
+                    name="quantity" 
+                    value={newBatch.quantity} 
+                    onChange={handleInputChange} 
+                    required 
+                    min="0.01"
+                    step="any"
+                    placeholder="0.00"
+                  />
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Unidad de Medida</label>
+                    <select 
+                      name="unit" 
+                      value={newBatch.unit} 
+                      onChange={handleInputChange} 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 bg-white"
+                    >
+                      {MOCK_UNITS.map(u => (
+                        <option key={u} value={u}>{u}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </FormSection>
+
+              {/* Sección 4: Fechas */}
+              <FormSection title="Fechas">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input 
+                    label="Fecha de Recepción" 
+                    type="date" 
+                    name="receivingDate" 
+                    value={newBatch.receivingDate} 
+                    onChange={handleInputChange} 
+                    required 
+                  />
+                  <Input 
+                    label="Fecha de Vencimiento" 
+                    type="date" 
+                    name="expirationDate" 
+                    value={newBatch.expirationDate} 
+                    onChange={handleInputChange} 
+                    required 
+                  />
+                </div>
+              </FormSection>
+
+              {/* Sección 5: Comentarios */}
+              <FormSection title="Comentarios Adicionales">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Observaciones y Notas</label>
+                  <textarea 
+                    name="comments" 
+                    value={newBatch.comments} 
+                    onChange={handleInputChange} 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 bg-white" 
+                    rows={4}
+                    placeholder="Ingrese cualquier observación, nota especial o información adicional relevante sobre este lote..."
+                  />
+                </div>
+              </FormSection>
+
+              {/* Botones de acción */}
+              <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                <Button 
+                  type="button" 
+                  variant="secondary"
+                  onClick={() => setActiveTab('list')}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="min-w-32"
+                >
+                  {isSubmitting ? 'Guardando...' : 'Guardar Lote'}
+                </Button>
+              </div>
+            </form>
+          </div>
         );
       case 'expiring':
         return <Table columns={columns} data={expiringBatches} />;
@@ -279,7 +424,14 @@ const RawMaterialBatchesPage: React.FC = () => {
 
   type TabId = 'list' | 'add' | 'expiring';
   const TabButton = ({ id, icon, label }: { id: TabId; icon: React.ReactNode; label: string }) => (
-    <button onClick={() => setActiveTab(id)} className={`flex items-center space-x-2 py-2 px-4 text-sm font-medium ${activeTab === id ? 'border-b-2 border-slate-700 text-slate-700' : 'text-gray-500 hover:text-gray-700'}`}>
+    <button 
+      onClick={() => setActiveTab(id)} 
+      className={`flex items-center space-x-2 py-3 px-4 text-sm font-medium transition-colors ${
+        activeTab === id 
+          ? 'border-b-2 border-slate-700 text-slate-700 bg-slate-50' 
+          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+      }`}
+    >
       {icon}
       <span>{label}</span>
     </button>
@@ -287,12 +439,14 @@ const RawMaterialBatchesPage: React.FC = () => {
 
   return (
     <div>
-      <div className="flex border-b">
+      <div className="flex border-b bg-white rounded-t-lg overflow-hidden">
         <TabButton id="list" icon={<ClipboardListIcon className="w-5 h-5" />} label="Todos los Lotes" />
         <TabButton id="add" icon={<PlusCircleIcon className="w-5 h-5" />} label="Registrar Lote Nuevo" />
         <TabButton id="expiring" icon={<ClockIcon className="w-5 h-5" />} label="Lotes Próximos a Vencer" />
       </div>
-      {renderContent()}
+      <div className="bg-gray-50 min-h-screen p-6">
+        {renderContent()}
+      </div>
     </div>
   );
 };

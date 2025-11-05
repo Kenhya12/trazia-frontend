@@ -1,72 +1,101 @@
 import React, { useState, useEffect } from 'react';
-import type { Recipe, RecipeIngredient } from '../../types.ts';
+import type { Recipe, RecipeSummary, RecipeIngredientRequest, RecipeRequest } from '../../types';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
-import { MOCK_RAW_MATERIALS, MOCK_FINAL_PRODUCTS } from '../../constants';
+import { MOCK_RAW_MATERIALS } from '../../constants';
+import { recipeApi } from "../../api/recipeApi";
 
 interface RecipeModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (recipe: Recipe) => void;
-    recipe: Recipe | null;
+    onSaveSuccess: () => void;
+    recipeSummary: RecipeSummary | null;
 }
 
 const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.134-2.033-2.134H8.033c-1.12 0-2.033.954-2.033 2.134v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
 );
 
-const RecipeModal: React.FC<RecipeModalProps> = ({ isOpen, onClose, onSave, recipe }) => {
-    const [activeTab, setActiveTab] = useState('ingredients');
-    const [formData, setFormData] = useState<Omit<Recipe, 'id' | 'lastUpdated'>>({
-        name: '', description: '', ingredients: [], retentionFactor: 1, finalProductId: null, process: '', observations: ''
+type FormData = {
+    name: string;
+    description: string;
+    yieldWeightGrams: number;
+    ingredients: { uid: string; productId: number, quantityGrams: number }[];
+};
+
+const RecipeModal: React.FC<RecipeModalProps> = ({ isOpen, onClose, onSaveSuccess, recipeSummary }) => {
+    const [formData, setFormData] = useState<FormData>({
+        name: '', description: '', ingredients: [], yieldWeightGrams: 0
     });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (isOpen) {
-            if (recipe) {
+        const fetchRecipe = async (id: number) => {
+            setLoading(true);
+            setError(null);
+            try {
+                const recipeData = await recipeApi.getById(id);
                 setFormData({
-                    name: recipe.name,
-                    description: recipe.description,
-                    ingredients: recipe.ingredients,
-                    retentionFactor: recipe.retentionFactor,
-                    finalProductId: recipe.finalProductId,
-                    process: recipe.process,
-                    observations: recipe.observations,
+                    name: recipeData.name,
+                    description: recipeData.description,
+                    yieldWeightGrams: recipeData.yieldWeightGrams,
+                    ingredients: recipeData.ingredients.map(ing => ({
+                        uid: crypto.randomUUID(),
+                        productId: ing.product.id,
+                        quantityGrams: ing.quantityGrams
+                    }))
                 });
+            } catch (e) {
+                setError(e instanceof Error ? e.message : 'Failed to load recipe data.');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        if (isOpen) {
+            if (recipeSummary) {
+                fetchRecipe(recipeSummary.id);
             } else {
                 setFormData({
-                    name: '', description: '', ingredients: [], retentionFactor: 1, finalProductId: MOCK_FINAL_PRODUCTS[0]?.id || null, process: '', observations: ''
+                    name: '', description: '', ingredients: [], yieldWeightGrams: 0
                 });
             }
-            setActiveTab('ingredients'); // Reset to first tab on open
         }
-    }, [recipe, isOpen]);
+    }, [recipeSummary, isOpen]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
-        let processedValue: string | number | null = value;
-        if (type === 'number') {
-            processedValue = parseFloat(value) || 0;
-        }
-        if (name === 'finalProductId' && value === '') {
-            processedValue = null;
-        }
-        setFormData(prev => ({ ...prev, [name]: processedValue }));
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'number' ? parseFloat(value) || 0 : value
+        }));
     };
 
-    const handleIngredientChange = (index: number, field: keyof RecipeIngredient, value: string | number) => {
+    const handleIngredientChange = (
+        index: number,
+        field: 'productId' | 'quantityGrams',
+        value: string | number
+    ) => {
         const newIngredients = [...formData.ingredients];
-        const updatedIngredient = { ...newIngredients[index], [field]: value };
+        const updatedIngredient = {
+            ...newIngredients[index],
+            [field]: field === 'productId' ? Number(value) : value,
+        };
         newIngredients[index] = updatedIngredient;
-        setFormData(prev => ({ ...prev, ingredients: newIngredients }));
+        setFormData(prev => ({
+            ...prev,
+            ingredients: newIngredients,
+        }));
     };
 
     const addIngredient = () => {
         setFormData(prev => ({
             ...prev,
             ingredients: [...prev.ingredients, {
-                rawMaterialId: MOCK_RAW_MATERIALS[0]?.id || '',
+                uid: crypto.randomUUID(),
+                productId: MOCK_RAW_MATERIALS[0]?.id || 0,
                 quantityGrams: 0,
             }]
         }));
@@ -79,116 +108,99 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ isOpen, onClose, onSave, reci
         }));
     };
 
-    const handleSubmit = () => {
-        const finalRecipe: Recipe = {
-            id: recipe?.id || `R${Date.now()}`,
+    const handleSubmit = async () => {
+        setError(null);
+        setLoading(true);
+
+        const payload: RecipeRequest = {
             ...formData,
-            lastUpdated: new Date().toISOString().split('T')[0]
+            ingredients: formData.ingredients.map((ing, index) => ({
+                uid: ing.uid,
+                productId: Number(ing.productId),
+                quantityGrams: Number(ing.quantityGrams),
+                displayOrder: index,
+            })),
         };
-        onSave(finalRecipe);
+
+        try {
+            if (recipeSummary) {
+                await recipeApi.update(recipeSummary.id, payload);
+            } else {
+                await recipeApi.create(payload);
+            }
+            onSaveSuccess();
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Failed to save recipe.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const footer = (
         <div className="space-x-2">
-            <Button variant="secondary" onClick={onClose}>Cancelar</Button>
-            <Button onClick={handleSubmit}>{recipe ? 'Guardar Cambios' : 'Crear Receta'}</Button>
+            <Button variant="secondary" onClick={onClose} disabled={loading}>Cancelar</Button>
+            <Button onClick={handleSubmit} disabled={loading}>{loading ? 'Guardando...' : recipeSummary ? 'Guardar Cambios' : 'Crear Receta'}</Button>
         </div>
     );
 
-    const renderTabContent = () => {
-        switch (activeTab) {
-            case 'ingredients':
-                return (
-                    <div>
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} title={recipeSummary ? 'Editar Receta' : 'Nueva Receta'} footer={footer}>
+            {loading && <p>Cargando...</p>}
+            {error && <p className="text-red-500 bg-red-50 p-3 rounded-md mb-4">{error}</p>}
+            {!loading && (
+                <div className="space-y-4">
+                    <Input label="Nombre de receta" id="name" name="name" value={formData.name} onChange={handleChange} />
+                  <div>
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                        <textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={2} className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm focus:ring-slate-500 focus:border-slate-500 bg-white"></textarea>
+                    </div>
+                    <Input label="Peso del Rendimiento (gramos)" id="yieldWeightGrams" name="yieldWeightGrams" type="number" step="0.01" value={formData.yieldWeightGrams} onChange={handleChange} />
+
+                    <div className="pt-4">
                         <h4 className="text-md font-semibold text-gray-800 mb-2">Ingredientes</h4>
                         <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
-                            {formData.ingredients.map((ing, index) => (
-                                <div key={index} className="grid grid-cols-12 gap-2 items-center">
-                                    <div className="col-span-6">
-                                        <select
-                                            value={ing.rawMaterialId}
-                                            onChange={(e) => handleIngredientChange(index, 'rawMaterialId', e.target.value)}
-                                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm focus:ring-slate-500 focus:border-slate-500 bg-white"
-                                        >
-                                            {MOCK_RAW_MATERIALS.map(rm => <option key={rm.id} value={rm.id}>{rm.name}</option>)}
-                                        </select>
+                            {formData.ingredients.map((ing, idx) => {
+                                const selectedMaterial = MOCK_RAW_MATERIALS.find(rm => rm.id === ing.productId);
+                                const isLiquid = selectedMaterial?.unit === 'L' || selectedMaterial?.unit === 'ml';
+
+                                return (
+                                    <div key={ing.uid} className="grid grid-cols-12 gap-2 items-center">
+                                        <div className="col-span-6">
+                                            <select
+                                                value={ing.productId}
+                                                onChange={(e) => handleIngredientChange(formData.ingredients.findIndex(i => i.uid === ing.uid), 'productId', parseInt(e.target.value))}
+                                                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm focus:ring-slate-500 focus:border-slate-500 bg-white"
+                                            >
+                                                {MOCK_RAW_MATERIALS.map((rm, idx) => <option key={`${rm.id}-${idx}`} value={rm.id}>{rm.name}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="col-span-5">
+                                            <input
+                                                type="number"
+                                                placeholder="Cantidad (g)"
+                                                value={ing.quantityGrams}
+                                                onChange={e => handleIngredientChange(formData.ingredients.findIndex(i => i.uid === ing.uid), 'quantityGrams', parseFloat(e.target.value) || 0)}
+                                                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm focus:ring-slate-500 focus:border-slate-500 bg-white"
+                                            />
+                                            {isLiquid && (
+                                                <p className="text-xs text-gray-500 mt-1">
+                                                    Introduce el peso en gramos (ej: 100ml ≈ 100g).
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="col-span-1">
+                                            <button onClick={() => removeIngredient(formData.ingredients.findIndex(i => i.uid === ing.uid))} className="text-red-500 hover:text-red-700 p-1"><TrashIcon className="w-5 h-5" /></button>
+                                        </div>
                                     </div>
-                                    <div className="col-span-5">
-                                        <input
-                                            type="number"
-                                            placeholder="Cantidad (g)"
-                                            value={ing.quantityGrams}
-                                            onChange={e => handleIngredientChange(index, 'quantityGrams', parseFloat(e.target.value) || 0)}
-                                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm focus:ring-slate-500 focus:border-slate-500 bg-white"
-                                        />
-                                    </div>
-                                    <div className="col-span-1">
-                                        <button onClick={() => removeIngredient(index)} className="text-red-500 hover:text-red-700 p-1"><TrashIcon className="w-5 h-5" /></button>
-                                    </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                         <div className="flex items-center space-x-2 mt-2">
                             <Button variant="secondary" size="sm" onClick={addIngredient}>+ Añadir ingrediente</Button>
                         </div>
                     </div>
-                );
-            case 'process':
-                return (
-                    <div>
-                        <label htmlFor="process" className="block text-sm font-medium text-gray-700 mb-1">Proceso de elaboración</label>
-                        <textarea id="process" name="process" value={formData.process} onChange={handleChange} rows={8} className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm focus:ring-slate-500 focus:border-slate-500 bg-white"></textarea>
-                    </div>
-                );
-            case 'observations':
-                return (
-                    <div>
-                        <label htmlFor="observations" className="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
-                        <textarea id="observations" name="observations" value={formData.observations} onChange={handleChange} rows={8} className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm focus:ring-slate-500 focus:border-slate-500 bg-white"></textarea>
-                    </div>
-                );
-            default: return null;
-        }
-    }
-
-    return (
-        <Modal isOpen={isOpen} onClose={onClose} title={recipe ? 'Editar Receta' : 'Nueva Receta'} footer={footer}>
-            <div className="space-y-4">
-                <Input label="Nombre de receta" id="name" name="name" value={formData.name} onChange={handleChange} />
-                <div>
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                    <textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={2} className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm focus:ring-slate-500 focus:border-slate-500 bg-white"></textarea>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input label="Factor de Retención (ej. 0.9)" id="retentionFactor" name="retentionFactor" type="number" step="0.01" value={formData.retentionFactor} onChange={handleChange} />
-                    <div>
-                        <label htmlFor="finalProductId" className="block text-sm font-medium text-gray-700 mb-1">Producto Final Asociado</label>
-                        <select id="finalProductId" name="finalProductId" value={formData.finalProductId || ''} onChange={handleChange} className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm focus:ring-slate-500 focus:border-slate-500 bg-white">
-                            <option value="">Ninguno</option>
-                            {MOCK_FINAL_PRODUCTS.map(fp => <option key={fp.id} value={fp.id}>{fp.name}</option>)}
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div className="mt-6">
-                <div className="border-b border-gray-200">
-                    <nav className="-mb-px flex space-x-4" aria-label="Tabs">
-                        <button onClick={() => setActiveTab('ingredients')} className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'ingredients' ? 'border-slate-500 text-slate-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
-                            Ingredientes
-                        </button>
-                        <button onClick={() => setActiveTab('process')} className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'process' ? 'border-slate-500 text-slate-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
-                            Proceso
-                        </button>
-                        <button onClick={() => setActiveTab('observations')} className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'observations' ? 'border-slate-500 text-slate-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
-                            Observaciones
-                        </button>
-                    </nav>
-                </div>
-                <div className="pt-4">
-                    {renderTabContent()}
-                </div>
-            </div>
+            )}
         </Modal>
     );
 };

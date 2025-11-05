@@ -6,6 +6,10 @@ import Input from '../ui/Input';
 
 import { MOCK_SUPPLIERS, ListBulletIcon, PlusCircleIcon, ClockIcon } from '../../constants';
 
+import { rawMaterialBatchApi, RawMaterialBatch } from '../../api/rawMaterialBatchApi';
+import { supplierApi, Supplier as SupplierAPI } from '../../api/supplierApi';
+import { rawMaterialApi, RawMaterial } from '../../api/rawMaterialApi';
+
 const MOCK_RAW_MATERIALS: RawMaterialLot[] = [
   {
     id: 'RM1',
@@ -45,25 +49,14 @@ interface RawMaterialsPageProps {
 
 const RawMaterialsPage: React.FC<RawMaterialsPageProps> = ({ initialTab }) => {
   const [activeTab, setActiveTab] = useState<RawMaterialTab>(initialTab);
-  const [materials, setMaterials] = useState<RawMaterialLot[]>(MOCK_RAW_MATERIALS.map(m => ({
-    id: m.id,
-    rawMaterialId: m.rawMaterialId,
-    supplierId: m.supplierId,
-    invoiceNumber: m.invoiceNumber || '',
-    name: m.name,
-    batchNumber: m.batchNumber || '',
-    quantity: m.quantity,
-    unit: m.unit as RawMaterialLotUnit,
-    receivingDate: m.receivingDate || '',
-    expirationDate: m.expirationDate || '',
-    documents: m.documents || [],
-    comments: m.comments || '',
-  })));
-  const [suppliers] = useState<Supplier[]>(MOCK_SUPPLIERS);
+  const [materials, setMaterials] = useState<RawMaterialLot[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [rawMaterialsCatalog, setRawMaterialsCatalog] = useState<RawMaterial[]>([]);
+  const [loading, setLoading] = useState(true);
   const [newBatch, setNewBatch] = useState<RawMaterialLot>({
     id: '',
     rawMaterialId: '',
-    supplierId: suppliers[0]?.id || '',
+    supplierId: '',
     invoiceNumber: '',
     name: '',
     batchNumber: '',
@@ -74,20 +67,49 @@ const RawMaterialsPage: React.FC<RawMaterialsPageProps> = ({ initialTab }) => {
     documents: [],
     comments: '',
   });
+  const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
 
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        
+        const [batchesData, suppliersData, rawMaterialsData] = await Promise.all([
+          rawMaterialBatchApi.getAll(),
+          supplierApi.getAll(),
+          rawMaterialApi.getAll(),
+        ]);
+
+        setMaterials(batchesData as RawMaterialLot[]);
+        setSuppliers(suppliersData);
+        setRawMaterialsCatalog(rawMaterialsData);
+
+        setNewBatch(prev => ({
+          ...prev,
+          supplierId: suppliersData[0]?.id || '',
+          rawMaterialId: rawMaterialsData[0]?.id || '',
+        }));
+      } catch (err: any) {
+        console.error('Error cargando datos:', err);
+        alert(err.message || 'Error al cargar datos');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type, files } = e.target as any;
     if (type === 'file') {
-      setNewBatch((prev) => ({
-        ...prev,
-        [name]: files ? Array.from(files) : [],
-      }));
+      setFilesToUpload(files ? Array.from(files) : []);
       return;
     }
     const isNumber = type === 'number';
@@ -109,38 +131,77 @@ const RawMaterialsPage: React.FC<RawMaterialsPageProps> = ({ initialTab }) => {
     return true;
   };
 
-  const handleAddMaterial = (e: React.FormEvent) => {
+  const handleAddMaterial = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('📦 newBatch antes de enviar:', newBatch);
+    console.log('📝 Campo name:', newBatch.name);
+    
     if (!validateBatch(newBatch)) {
       alert('Por favor, complete todos los campos obligatorios correctamente.');
       return;
     }
-    const batchToAdd: RawMaterialLot = {
-      ...newBatch,
-      id: `RM${Date.now()}`,
-    };
-    setMaterials(prev => [...prev, batchToAdd]);
-    // Reset form
-    setNewBatch({
-      id: '',
-      rawMaterialId: '',
-      supplierId: suppliers[0]?.id || '',
-      invoiceNumber: '',
-      name: '',
-      batchNumber: '',
-      quantity: 0,
-      unit: 'kg' as RawMaterialLotUnit,
-      receivingDate: '',
-      expirationDate: '',
-      documents: [],
-      comments: '',
-    });
-    setActiveTab('list');
+
+    try {
+      const formData = new FormData();
+      formData.append('id', newBatch.id);
+      formData.append('rawMaterialId', newBatch.rawMaterialId);
+      formData.append('supplierId', newBatch.supplierId);
+      formData.append('invoiceNumber', newBatch.invoiceNumber);
+      formData.append('name', newBatch.name);
+      formData.append('batchNumber', newBatch.batchNumber);
+      formData.append('quantity', newBatch.quantity.toString());
+      formData.append('unit', newBatch.unit);
+      formData.append('receivingDate', newBatch.receivingDate);
+      formData.append('expirationDate', newBatch.expirationDate);
+      formData.append('comments', newBatch.comments);
+      filesToUpload.forEach((file, index) => {
+        formData.append('documents', file);
+      });
+
+      const createdBatch = await rawMaterialBatchApi.create(formData);
+      setMaterials(prev => [
+        ...prev,
+        {
+          ...newBatch,
+          id: createdBatch.id,
+          documents: filesToUpload.map(f => f.name),
+        }
+      ]);
+      
+      setNewBatch({
+        id: '',
+        rawMaterialId: rawMaterialsCatalog[0]?.id || '',
+        supplierId: suppliers[0]?.id || '',
+        invoiceNumber: '',
+        name: '',
+        batchNumber: '',
+        quantity: 0,
+        unit: 'kg' as RawMaterialLotUnit,
+        receivingDate: '',
+        expirationDate: '',
+        documents: [],
+        comments: '',
+      });
+      setFilesToUpload([]);
+      
+      setActiveTab('list');
+      alert('Lote creado exitosamente');
+    } catch (err: any) {
+      console.error('Error creando lote:', err);
+      alert(err.message || 'Error al crear lote');
+    }
   };
 
-  const handleDeleteBatch = (id: string) => {
+  const handleDeleteBatch = async (id: string) => {
     if (window.confirm('¿Está seguro de que desea eliminar este lote?')) {
-      setMaterials(prev => prev.filter(batch => batch.id !== id));
+      try {
+        await rawMaterialBatchApi.delete(id);
+        setMaterials(prev => prev.filter(batch => batch.id !== id));
+        alert('Lote eliminado exitosamente');
+      } catch (err: any) {
+        console.error('Error eliminando lote:', err);
+        alert(err.message || 'Error al eliminar lote');
+      }
     }
   };
 
@@ -183,6 +244,9 @@ const RawMaterialsPage: React.FC<RawMaterialsPageProps> = ({ initialTab }) => {
   ];
 
   const renderContent = () => {
+    if (loading) {
+      return <div className="p-4 text-center">Cargando...</div>;
+    }
     switch (activeTab) {
       case 'list':
         return <Table<RawMaterialLot> columns={columns} data={materials} />;
@@ -192,16 +256,43 @@ const RawMaterialsPage: React.FC<RawMaterialsPageProps> = ({ initialTab }) => {
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Agregar Nuevo Lote de Materia Prima</h3>
             <form onSubmit={handleAddMaterial} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input label="Nombre Materia Prima" id="name" name="name" value={newBatch.name} onChange={handleInputChange} required />
-                <Input label="ID Materia Prima" id="rawMaterialId" name="rawMaterialId" value={newBatch.rawMaterialId} onChange={handleInputChange} required />
+                <div className="md:col-span-2 p-4 bg-gray-50 border border-gray-200 rounded">
+                  <p className="text-sm text-gray-700">Por favor, asegúrese de que los datos ingresados sean correctos antes de guardar el lote.</p>
+                </div>
+                {/* Materia Prima (Nombre) */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Materia Prima (Nombre)</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={newBatch.name}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                </div>
+                {/* Proveedor */}
                 <div>
                   <label htmlFor="supplierId" className="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
-                  <select id="supplierId" name="supplierId" value={newBatch.supplierId} onChange={handleInputChange} className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm focus:ring-slate-500 focus:border-slate-500 bg-white" required>
-                    {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  <select
+                    id="supplierId"
+                    name="supplierId"
+                    value={newBatch.supplierId}
+                    onChange={handleInputChange}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none sm:text-sm focus:ring-slate-500 focus:border-slate-500 bg-white"
+                    required
+                  >
+                    <option value="">Seleccione un proveedor</option>
+                    {(suppliers.length > 0 ? suppliers : MOCK_SUPPLIERS).map((supplier) => (
+                      <option key={supplier.id} value={supplier.id}>
+                        {supplier.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
-                <Input label="Número de Lote" id="batchNumber" name="batchNumber" value={newBatch.batchNumber} onChange={handleInputChange} required />
+                <Input label="ID Materia Prima" id="rawMaterialId" name="rawMaterialId" value={newBatch.rawMaterialId} onChange={handleInputChange} required />
                 <Input label="Número de Factura" id="invoiceNumber" name="invoiceNumber" value={newBatch.invoiceNumber} onChange={handleInputChange} />
+                <Input label="Número de Lote" id="batchNumber" name="batchNumber" value={newBatch.batchNumber} onChange={handleInputChange} required />
                 <Input label="Cantidad" id="quantity" name="quantity" type="number" min={0.01} step="any" value={newBatch.quantity} onChange={handleInputChange} required />
                 <div>
                   <label htmlFor="unit" className="block text-sm font-medium text-gray-700 mb-1">Unidad de Medida</label>

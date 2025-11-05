@@ -8,6 +8,7 @@ export type RawMaterialLotUnit = 'kg' | 'g' | 'L' | 'ml' | 'unit';
 
 export interface RawMaterialBatch {
     id?: string;
+    name: string;
     invoiceNumber: string;
     batchNumber: string;
     rawMaterialId: string;
@@ -17,7 +18,7 @@ export interface RawMaterialBatch {
     receivingDate: string;
     expirationDate: string;
     purchaseDate?: string;
-    documents?: string[];
+    documents?: File[];
     comments?: string;
 }
 
@@ -80,8 +81,13 @@ export const rawMaterialBatchApi = {
         console.log('🔧 rawMaterialBatchApi.create - Creando lote:', batch.batchNumber);
         
         try {
-            const response: AxiosResponse<RawMaterialBatch> = await client.post(API_ENDPOINTS.RAW_MATERIAL_BATCH.CREATE, batch);
-            
+            // ✅ ENVIAR COMO JSON DIRECTAMENTE - SIN FormData
+            const response: AxiosResponse<RawMaterialBatch> = await client.post(
+                API_ENDPOINTS.RAW_MATERIAL_BATCH.CREATE,
+                batch
+                // ❌ ELIMINAR headers de multipart/form-data
+            );
+
             console.log('✅ rawMaterialBatchApi.create - Lote creado:', response.data.batchNumber);
             return response.data;
         } catch (error: unknown) {
