@@ -3,17 +3,7 @@
 import client from './client';
 import { API_ENDPOINTS } from './endpoints';
 import { AxiosResponse } from 'axios';
-
-export interface RawMaterial {
-    id?: string;
-    name: string;
-    supplierId: string;
-    internalCode: string;
-    unit: 'kg' | 'g' | 'L' | 'ml' | 'unit';
-    category: string;
-    minStock: number;
-    currentStock: number;
-}
+import type { RawMaterial } from "../types";
 
 interface RawMaterialListResponse {
     rawMaterials: RawMaterial[];
