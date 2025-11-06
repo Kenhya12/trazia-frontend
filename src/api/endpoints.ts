@@ -48,6 +48,13 @@ export interface ApiEndpoints {
         UPDATE: (id: number) => string;
         DELETE: (id: number) => string;
     };
+    LABELS: {
+        GET_ALL: string;
+        GET_BY_ID: (id: string) => string;
+        CREATE: string;
+        UPDATE: (id: string) => string;
+        DELETE: (id: string) => string;
+    };
 }
 
 export const API_ENDPOINTS: ApiEndpoints = {
@@ -99,5 +106,12 @@ export const API_ENDPOINTS: ApiEndpoints = {
         CREATE: '/recipes',
         UPDATE: (id: number) => `/recipes/${id}`,
         DELETE: (id: number) => `/recipes/${id}`,
+    },
+    LABELS: {
+        GET_ALL: '/labels',
+        GET_BY_ID: (id: string) => `/labels/${id}`,
+        CREATE: '/labels',
+        UPDATE: (id: string) => `/labels/${id}`,
+        DELETE: (id: string) => `/labels/${id}`,
     },
 };
