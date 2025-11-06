@@ -31,15 +31,15 @@ apiClient.interceptors.response.use(
     }
 );
 
-// Servicio real
+// Servicio real con CRUD completo
 const apiLabelService = {
     async getLabels(): Promise<ProductLabel[]> {
-        const response = await apiClient.get<ProductLabel[]>('/labels');
-        return response.data;
+        const res = await apiClient.get<ProductLabel[]>('/labels');
+        return res.data;
     },
     async getLabelById(id: string): Promise<ProductLabel> {
-        const response = await apiClient.get<ProductLabel>(`/labels/${id}`);
-        return response.data;
+        const res = await apiClient.get<ProductLabel>(`/labels/${id}`);
+        return res.data;
     },
     async createLabel(label: Omit<ProductLabel, 'id'>): Promise<ProductLabel> {
         const labelWithDefaults = {
@@ -51,17 +51,17 @@ const apiLabelService = {
             countryOfOrigin: label.countryOfOrigin || '',
             batchNumber: label.batchNumber || '',
         };
-        const response = await apiClient.post<ProductLabel>('/labels', labelWithDefaults);
-        return response.data;
+        const res = await apiClient.post<ProductLabel>('/labels', labelWithDefaults);
+        return res.data;
     },
     async updateLabel(id: string, label: Partial<ProductLabel>): Promise<ProductLabel> {
-        const response = await apiClient.put<ProductLabel>(`/labels/${id}`, label);
-        return response.data;
+        const res = await apiClient.put<ProductLabel>(`/labels/${id}`, label);
+        return res.data;
     },
     async deleteLabel(id: string): Promise<void> {
         await apiClient.delete(`/labels/${id}`);
     },
 };
 
-// Export único: alterna entre mock y real
+// Export único: alterna entre mock y real según USE_MOCK_SERVICE
 export const labelService = USE_MOCK_SERVICE ? mockLabelService : apiLabelService;
